@@ -1,0 +1,289 @@
+
+<style>
+.ph-btn{padding:7px 14px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);font-size:13px;cursor:pointer;font-family:var(--font-sans);white-space:nowrap}
+.ph-btn.active{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+.week-row{display:grid;grid-template-columns:72px 1fr;gap:12px;margin-bottom:8px;align-items:start}
+.week-label{font-size:12px;color:var(--color-text-tertiary);padding-top:10px}
+.week-tasks{display:flex;flex-direction:column;gap:4px}
+.task{display:flex;align-items:flex-start;gap:8px;background:var(--color-background-secondary);border-radius:8px;padding:8px 12px;border:0.5px solid var(--color-border-tertiary)}
+.tdot{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.ttext{font-size:13px;color:var(--color-text-primary);flex:1;line-height:1.5}
+.ttag{font-size:11px;padding:1px 7px;border-radius:99px;flex-shrink:0;margin-top:2px}
+.metric-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.metric{flex:1;min-width:100px;background:var(--color-background-secondary);border-radius:8px;padding:10px 14px;border:0.5px solid var(--color-border-tertiary)}
+.ml{font-size:11px;color:var(--color-text-tertiary);margin-bottom:3px}
+.mv{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.stitle{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:0.06em;margin:14px 0 8px}
+.note-box{border-left:3px solid;border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:12px;font-size:13px;line-height:1.6;color:var(--color-text-primary)}
+.pill{font-size:12px;padding:3px 10px;border-radius:99px;display:inline-block;margin:2px}
+.changed{border:0.5px solid #3B6D11 !important}
+</style>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+  <button class="ph-btn active" onclick="setPhase(0)">Phase 1 — MVP</button>
+  <button class="ph-btn" onclick="setPhase(1)">Phase 2A — Stabilize</button>
+  <button class="ph-btn" onclick="setPhase(2)">Phase 2B — Features</button>
+  <button class="ph-btn" onclick="setPhase(3)">Phase 3 — Multi-tenant</button>
+  <button class="ph-btn" onclick="setPhase(4)">Phase 4 — SaaS</button>
+</div>
+
+<div id="rc"></div>
+
+<script>
+const P={
+  P0:{c:"#A32D2D",bg:"#FCEBEB"},
+  P1:{c:"#854F0B",bg:"#FAEEDA"},
+  P2:{c:"#534AB7",bg:"#EEEDFE"},
+  Fix:{c:"#185FA5",bg:"#E6F1FB"},
+  Setup:{c:"#3B6D11",bg:"#EAF3DE"},
+  Test:{c:"#0F6E56",bg:"#E1F5EE"},
+  Info:{c:"#185FA5",bg:"#E6F1FB"}
+};
+
+const phases=[
+  {
+    label:"Phase 1 — MVP",color:"#3B6D11",bg:"#EAF3DE",
+    duration:"5–6 tuần",deploy:"Local tại quán",
+    goal:"Core flow chạy thử được tại quán: gọi món → in bếp → thanh toán → in bill → audit log",
+    outcome:"Quán ổng dùng thử được vài ca, có feedback thực tế",
+    note:"Làm đúng nền ngay từ đầu: tenant_id NOT NULL (seed 1 default tenant), socket rooms theo tenant, module-based structure. Không làm gì thừa — chỉ đủ để chạy core flow.",
+    notDoing:["Redis","Combo menu","Discount","Shift nâng cao","Cancel approval flow","Super admin","Electron print agent"],
+    rules:[
+      "tenant_id NOT NULL từ ngay tuần 1 — seed 1 default tenant",
+      "Socket.io join room theo tenantId ngay từ đầu — không refactor sau",
+      "Void bill: owner-only default via config/permission, không hardcode",
+      "Print: hỏi thông tin máy in ngay tuần 1 (hãng, LAN/USB, IP, ESC/POS)",
+      "Schema chứa đủ enum states — UI/logic có thể chưa dùng hết"
+    ],
+    weeks:[
+      {label:"Tuần 1",tasks:[
+        {t:"Ngày 1–2: setup monorepo, Vite+React, ASP.NET Core Web API (.NET 9), Docker, Serilog, health check",p:"Setup"},
+        {t:"Ngày 3–4: EF Core schema MVP core — tenant_id NOT NULL, seed default tenant",p:"P0"},
+        {t:"Ngày 5–7: Auth login/logout, JWT + refresh token, 4 roles, RBAC policy middleware",p:"P0"},
+        {t:"Song song: hỏi thông tin máy in (hãng, LAN/USB, IP, ESC/POS) để chuẩn bị",p:"Info"},
+      ]},
+      {label:"Tuần 2",tasks:[
+        {t:"Tables API + UI: CRUD bàn, 4 trạng thái, sơ đồ bàn desktop",p:"P0"},
+        {t:"Categories + Menu items API: CRUD, tắt/bật món hết",p:"P0"},
+        {t:"Gọi món UI: mobile-first, category tabs, thêm vào order",p:"P0"},
+      ]},
+      {label:"Tuần 3",tasks:[
+        {t:"Orders API: tạo order, thêm món, state machine (pending/sent_to_kitchen/cancelled); thêm món mới sau khi gửi bếp; schema chừa cooking/ready/served",p:"P0",changed:true},
+        {t:"Realtime: TanStack Query polling 2–3s là primary strategy — không cần SignalR ở giai đoạn này",p:"P0",changed:true},
+        {t:"Kitchen display: màn hình bếp polling orders mới, cập nhật realtime qua refetchInterval",p:"P0",changed:true},
+        {t:"Chi tiết order UI: trạng thái từng món, lock icon khi đã gửi, thêm món mới vào order đã gửi",p:"P0"},
+      ]},
+      {label:"Tuần 4",tasks:[
+        {t:"Cancel món pending: nhập lý do bắt buộc, ghi audit log",p:"P0"},
+        {t:"Bills API: tạo bill, tiền mặt + QR, status paid/voided",p:"P0"},
+        {t:"Void bill: default owner-only via config/permission, reason required, ghi VOID_LOGS",p:"P0",changed:true},
+        {t:"Print service: print_jobs table + print_key chống in trùng + mock mode + .NET Worker Service polling; test LAN nếu có máy in",p:"P0",changed:true},
+      ]},
+      {label:"Tuần 5",tasks:[
+        {t:"Thanh toán UI: desktop, chọn phương thức, xác nhận, in bill",p:"P0"},
+        {t:"Audit log: ghi void bill + cancel món, owner xem được",p:"P0"},
+        {t:"Quản lý menu UI: thêm/sửa món, toggle available",p:"P1"},
+        {t:"Báo cáo đơn giản: tổng doanh thu ngày, danh sách bill",p:"P1"},
+      ]},
+      {label:"Tuần 6",tasks:[
+        {t:"Test end-to-end toàn bộ core flow tại quán ổng",p:"Test"},
+        {t:"Fix bugs phát sinh khi dùng thực tế",p:"Fix"},
+        {t:"Ghi nhận feedback chi tiết từng màn hình",p:"Test"},
+      ]}
+    ]
+  },
+  {
+    label:"Phase 2A — Stabilize",color:"#185FA5",bg:"#E6F1FB",
+    duration:"2 tuần",deploy:"Local tại quán",
+    goal:"1 quán dùng ổn định 7–14 ngày liên tục không lỗi",
+    outcome:"MVP thực sự ổn định, tự tin bán cho quán thứ 2",
+    note:"Không làm feature mới. Tập trung fix mọi thứ phát sinh từ dùng thực tế. Stabilize xong mới được qua 2B.",
+    notDoing:["Tính năng mới bất kỳ","Refactor lớn","Multi-tenant"],
+    rules:[
+      "Không merge feature PR nào trong phase này",
+      "Mỗi bug fix phải có test case kèm theo",
+      "Print phải retry được nếu máy in offline",
+      "Backup DB hàng ngày bằng cron job đơn giản"
+    ],
+    weeks:[
+      {label:"Tuần 1",tasks:[
+        {t:"Fix toàn bộ bugs từ pilot phase 1 — ưu tiên P0 trước",p:"Fix"},
+        {t:"Print retry: tự động thử lại nếu máy in không phản hồi",p:"P0"},
+        {t:"Reprint: in lại bill hoặc phiếu bếp có ghi rõ lý do",p:"P0"},
+        {t:"Backup DB: cron job hàng ngày, lưu file local",p:"P0"},
+      ]},
+      {label:"Tuần 2",tasks:[
+        {t:"Audit log filter: lọc theo ngày, role, loại action",p:"P1"},
+        {t:"End-of-day report: tổng kết ca, doanh thu, số bill, void",p:"P1"},
+        {t:"UX polish: loading states, error messages, empty states",p:"P1"},
+        {t:"Stress test: mô phỏng giờ cao điểm nhiều bàn cùng lúc",p:"Test"},
+        {t:"Chạy liên tục 7 ngày tại quán, monitor lỗi",p:"Test"},
+      ]}
+    ]
+  },
+  {
+    label:"Phase 2B — Features",color:"#854F0B",bg:"#FAEEDA",
+    duration:"3–4 tuần",deploy:"Local hoặc VPS đơn giản",
+    goal:"Đủ tính năng để bán cho quán thứ 2",
+    outcome:"Sản phẩm hoàn chỉnh hơn, có thể charge tiền",
+    note:"Chỉ làm features mà quán thực sự yêu cầu sau pilot. Không tự suy ra tính năng — feedback từ ổng là ưu tiên.",
+    notDoing:["Multi-tenant","Electron app (nếu REST print vẫn ổn)","SaaS billing"],
+    rules:[
+      "Mỗi feature phải có use case thực tế từ quán — không làm theo giả định",
+      "Cancel approval chỉ làm nếu quán thực sự cần (hỏi lại ổng)",
+      "Activate cooking/ready/served states nếu quán cần tracking chi tiết",
+      "Redis thêm vào nhưng không refactor socket — chỉ thêm adapter"
+    ],
+    weeks:[
+      {label:"Tuần 1",tasks:[
+        {t:"Combo menu: tạo combo, chọn combo khi gọi món",p:"P0"},
+        {t:"Shift management: mở/đóng ca, doanh thu theo ca",p:"P0"},
+        {t:"Gộp bàn / chuyển bàn",p:"P1"},
+      ]},
+      {label:"Tuần 2",tasks:[
+        {t:"Cancel approval flow (nếu quán cần): 3 case đầy đủ",p:"P0"},
+        {t:"In phiếu hủy xuống bếp khi cancel approved",p:"P0"},
+        {t:"Notification manager: bell icon, cancel request pending",p:"P1"},
+      ]},
+      {label:"Tuần 3",tasks:[
+        {t:"Discount: % hoặc số tiền cố định, áp dụng vào bill",p:"P1"},
+        {t:"Redis: thêm vào stack, SignalR backplane, cache session",p:"P1"},
+        {t:"Báo cáo nâng cao: theo ca, top món bán chạy, export CSV",p:"P1"},
+      ]},
+      {label:"Tuần 4",tasks:[
+        {t:"Void bill permission-based: config được role nào void được",p:"P1"},
+        {t:"Test + deploy cho quán thứ 2",p:"Test"},
+        {t:"Ghi nhận feedback quán thứ 2",p:"Test"},
+      ]}
+    ]
+  },
+  {
+    label:"Phase 3 — Multi-tenant",color:"#534AB7",bg:"#EEEDFE",
+    duration:"3–4 tuần",deploy:"Railway + Vercel",
+    goal:"1 hệ thống vận hành nhiều quán, onboard tự động",
+    outcome:"Onboard quán mới không cần can thiệp kỹ thuật",
+    note:"tenant_id đã có từ phase 1 nên không migration đau. Phase này chủ yếu là: tenant management, isolation test, onboarding flow, và deploy cloud.",
+    notDoing:["SaaS billing","Subscription plan","Super admin đầy đủ"],
+    rules:[
+      "Không cần ALTER TABLE — tenant_id đã đúng từ phase 1",
+      "Test kỹ tenant isolation: quán A không được thấy data quán B",
+      "Print agent config riêng theo từng tenant",
+      "Deploy cloud: Railway backend, Vercel frontend, wildcard subdomain"
+    ],
+    weeks:[
+      {label:"Tuần 1",tasks:[
+        {t:"Tenant middleware hoàn chỉnh: subdomain → tenant_id cho mọi request",p:"P0"},
+        {t:"Tenant isolation test: query đều filter tenant_id, không data leak",p:"P0"},
+        {t:"Printer config theo tenant: mỗi quán set IP máy in riêng",p:"P0"},
+      ]},
+      {label:"Tuần 2",tasks:[
+        {t:"Tenant onboarding flow: tạo quán mới, seed data mặc định",p:"P0"},
+        {t:"Super admin cơ bản: danh sách tenant, active/suspended",p:"P0"},
+        {t:"Deploy lên Railway + Vercel, wildcard SSL *.posapp.vn",p:"P0"},
+      ]},
+      {label:"Tuần 3",tasks:[
+        {t:"Electron print agent: kết nối cloud SignalR, in qua LAN tại quán",p:"P1"},
+        {t:"CI/CD: GitHub Actions auto deploy khi push main",p:"P1"},
+        {t:"Monitoring: Sentry error tracking + uptime ping",p:"P1"},
+      ]},
+      {label:"Tuần 4",tasks:[
+        {t:"Backup tự động theo tenant: cron job, lưu cloud storage",p:"P1"},
+        {t:"Test onboard 2–3 quán thực tế end-to-end",p:"Test"},
+        {t:"Manual subscription tracking: ghi chú quán nào đang trả tiền",p:"P1"},
+      ]}
+    ]
+  },
+  {
+    label:"Phase 4 — SaaS",color:"#993C1D",bg:"#FAECE7",
+    duration:"Ongoing",deploy:"AWS / GCP + CDN",
+    goal:"Thương mại hóa, scale 20+ quán, recurring revenue",
+    outcome:"Subscription tự động, team support, thị trường mở rộng",
+    note:"Từ phase này là bài toán business nhiều hơn kỹ thuật. Ưu tiên hoàn toàn theo feedback thị trường và doanh thu thực tế.",
+    notDoing:["Tự quyết định feature — phải theo thị trường"],
+    rules:[
+      "Chỉ build feature khi có ít nhất 3 quán yêu cầu",
+      "Revenue > engineering: nếu manual process vẫn scale được thì chưa automate",
+      "Mobile app native chỉ khi PWA không đủ"
+    ],
+    weeks:[
+      {label:"Tháng 1",tasks:[
+        {t:"Subscription plans: Basic / Pro / Enterprise, pricing rõ ràng",p:"P0"},
+        {t:"Billing tự động: MoMo / VNPay / chuyển khoản tự động đối soát",p:"P0"},
+        {t:"Trial flow: 14 ngày free, tự remind trước khi hết",p:"P0"},
+        {t:"Landing page + marketing site",p:"P0"},
+      ]},
+      {label:"Tháng 2",tasks:[
+        {t:"PWA: cài được trên mobile như native app, offline basic",p:"P1"},
+        {t:"Customer loyalty: lưu khách thân thiết, tích điểm",p:"P1"},
+        {t:"Check-in/out nhân viên theo ca",p:"P1"},
+        {t:"Customer support: ticket system hoặc Zalo OA",p:"P1"},
+      ]},
+      {label:"Tháng 3+",tasks:[
+        {t:"Advanced analytics: insight tự động, dự báo doanh thu",p:"P2"},
+        {t:"Multi-branch: 1 chủ quán quản lý nhiều chi nhánh",p:"P2"},
+        {t:"API public: tích hợp kế toán, delivery app",p:"P2"},
+        {t:"Scale infra: migrate AWS nếu Railway không đủ",p:"P2"},
+      ]}
+    ]
+  }
+];
+
+function setPhase(idx){
+  document.querySelectorAll('.ph-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
+  const p=phases[idx];
+  let h='';
+
+  h+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+    <span style="font-size:12px;padding:3px 10px;border-radius:99px;background:${p.bg};color:${p.color};border:0.5px solid ${p.color}40">v4 — .NET stack</span>
+    <span style="font-size:12px;color:var(--color-text-tertiary)">Stack: .NET 9 + React + EF Core + SignalR + PostgreSQL</span>
+  </div>`;
+
+  h+=`<div class="metric-row">
+    <div class="metric"><div class="ml">Thời gian</div><div class="mv">${p.duration}</div></div>
+    <div class="metric"><div class="ml">Deploy</div><div class="mv">${p.deploy}</div></div>
+    <div class="metric"><div class="ml">Kết quả</div><div class="mv" style="font-size:12px">${p.outcome}</div></div>
+  </div>`;
+
+  h+=`<div style="background:${p.bg}30;border:0.5px solid ${p.color}40;border-radius:8px;padding:10px 14px;margin-bottom:12px">
+    <div style="font-size:11px;color:${p.color};font-weight:500;margin-bottom:4px">GOAL</div>
+    <div style="font-size:13px;color:var(--color-text-primary)">${p.goal}</div>
+  </div>`;
+
+  h+=`<div class="note-box" style="border-color:${p.color};background:${p.bg}18">${p.note}</div>`;
+
+  h+=`<div class="stitle">Nguyên tắc kỹ thuật phase này</div>`;
+  h+=`<div style="background:var(--color-background-secondary);border-radius:8px;padding:10px 14px;border:0.5px solid var(--color-border-tertiary);margin-bottom:14px">`;
+  p.rules.forEach(r=>{
+    h+=`<div style="display:flex;gap:8px;align-items:flex-start;padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px;color:var(--color-text-secondary)">
+      <div style="width:6px;height:6px;border-radius:50%;background:${p.color};margin-top:5px;flex-shrink:0"></div>
+      <span>${r}</span>
+    </div>`;
+  });
+  h+=`</div>`;
+
+  h+=`<div class="stitle">Kế hoạch từng tuần</div>`;
+  p.weeks.forEach(w=>{
+    h+=`<div class="week-row"><div class="week-label">${w.label}</div><div class="week-tasks">`;
+    w.tasks.forEach(t=>{
+      const pc=P[t.p]||P.P1;
+      const changed=t.changed?'border:0.5px solid #3B6D11!important':'' ;
+      h+=`<div class="task" style="${changed}">
+        <div class="tdot" style="background:${pc.c}"></div>
+        <div class="ttext">${t.t}${t.changed?' <span style="font-size:10px;color:#3B6D11;font-weight:500">v3</span>':''}</div>
+        <span class="ttag" style="background:${pc.bg};color:${pc.c}">${t.p}</span>
+      </div>`;
+    });
+    h+=`</div></div>`;
+  });
+
+  h+=`<div class="stitle">Chưa làm ở phase này</div>`;
+  h+=`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px">`;
+  p.notDoing.forEach(nd=>{
+    h+=`<span class="pill" style="background:var(--color-background-secondary);color:var(--color-text-tertiary);border:0.5px solid var(--color-border-tertiary)">${nd}</span>`;
+  });
+  h+=`</div>`;
+
+  document.getElementById('rc').innerHTML=h;
+}
+setPhase(0);
+</script>
