@@ -2,3 +2,16 @@
 2026-04-29 18:18:46.106 +07:00 [INF] Application started. Press Ctrl+C to shut down.
 2026-04-29 18:18:46.108 +07:00 [INF] Hosting environment: Development
 2026-04-29 18:18:46.109 +07:00 [INF] Content root path: C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api
+2026-04-29 18:26:28.512 +07:00 [INF] Application is shutting down...
+2026-04-29 18:27:21.304 +07:00 [ERR] An error occurred using the connection to database 'restaurant_db' on server 'tcp://localhost:5432'.
+2026-04-29 18:29:03.845 +07:00 [ERR] Failed executing DbCommand (16ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT migration_id, product_version
+FROM "__EFMigrationsHistory"
+ORDER BY migration_id;
+2026-04-29 18:29:10.718 +07:00 [INF] Created default tenant: Default Restaurant
+2026-04-29 18:29:10.879 +07:00 [INF] Created default owner user: owner
+2026-04-29 18:29:11.007 +07:00 [INF] Now listening on: http://localhost:5141
+2026-04-29 18:29:11.008 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-04-29 18:29:11.008 +07:00 [INF] Hosting environment: Development
+2026-04-29 18:29:11.009 +07:00 [INF] Content root path: C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api
+2026-04-29 18:29:21.654 +07:00 [INF] Application is shutting down...

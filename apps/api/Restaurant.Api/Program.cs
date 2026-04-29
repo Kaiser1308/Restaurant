@@ -1,5 +1,7 @@
 using Serilog;
 using Restaurant.Api.Middleware;
+using Microsoft.EntityFrameworkCore;
+using Restaurant.Api.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,8 +22,22 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllers();
+builder.Services.AddDbContext<RestaurantDbContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseSnakeCaseNamingConvention();
+});
+builder.Services.AddScoped<SeedService>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<RestaurantDbContext>();
+    var seedService = scope.ServiceProvider.GetRequiredService<SeedService>();
+    await dbContext.Database.MigrateAsync();
+    await seedService.SeedAsync();
+}
 
 if (app.Environment.IsDevelopment())
 {
