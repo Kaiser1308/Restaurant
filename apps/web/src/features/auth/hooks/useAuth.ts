@@ -1,12 +1,16 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { authApi } from '../api/authApi'
+import { useCurrentUser } from './useCurrentUser'
 
 export function useAuth() {
+  const queryClient = useQueryClient()
+
   const loginMutation = useMutation({
     mutationFn: authApi.login,
     onSuccess: (data) => {
       localStorage.setItem('accessToken', data.accessToken)
       localStorage.setItem('refreshToken', data.refreshToken)
+      queryClient.setQueryData(['currentUser'], data.user)
     },
   })
 
@@ -15,14 +19,16 @@ export function useAuth() {
     onSuccess: () => {
       localStorage.removeItem('accessToken')
       localStorage.removeItem('refreshToken')
+      queryClient.removeQueries({ queryKey: ['currentUser'] })
+    },
+    onError: () => {
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      queryClient.removeQueries({ queryKey: ['currentUser'] })
     },
   })
 
-  const currentUserQuery = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: authApi.getCurrentUser,
-    enabled: !!localStorage.getItem('accessToken'),
-  })
+  const currentUserQuery = useCurrentUser()
 
   return {
     login: loginMutation.mutateAsync,

@@ -16,4 +16,7 @@ public sealed class User
 
     public Tenant Tenant { get; set; } = null!;
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+    public ICollection<Order> CreatedOrders { get; set; } = new List<Order>();
+    public ICollection<OrderItem> CancelledOrderItems { get; set; } = new List<OrderItem>();
+    public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
 }

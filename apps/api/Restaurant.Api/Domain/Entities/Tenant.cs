@@ -12,4 +12,10 @@ public sealed class Tenant
 
     public ICollection<User> Users { get; set; } = new List<User>();
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+    public ICollection<RestaurantTable> RestaurantTables { get; set; } = new List<RestaurantTable>();
+    public ICollection<Category> Categories { get; set; } = new List<Category>();
+    public ICollection<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
+    public ICollection<Order> Orders { get; set; } = new List<Order>();
+    public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+    public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
 }

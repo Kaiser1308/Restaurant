@@ -1,4 +1,10 @@
 export default function Modal({ children, open }: { children: React.ReactNode; open: boolean }) {
   if (!open) return null
-  return <div>{children}</div>
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(24,29,24,0.42)] p-4">
+      <div className="w-full max-w-lg rounded-[var(--radius-card)] border border-[var(--color-outline-variant)] bg-[var(--color-surface-white)] p-5 shadow-2xl">
+        {children}
+      </div>
+    </div>
+  )
 }
