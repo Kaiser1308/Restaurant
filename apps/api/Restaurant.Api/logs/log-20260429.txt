@@ -15,3 +15,115 @@ ORDER BY migration_id;
 2026-04-29 18:29:11.008 +07:00 [INF] Hosting environment: Development
 2026-04-29 18:29:11.009 +07:00 [INF] Content root path: C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api
 2026-04-29 18:29:21.654 +07:00 [INF] Application is shutting down...
+2026-04-29 18:40:34.596 +07:00 [INF] Now listening on: http://localhost:5141
+2026-04-29 18:40:34.629 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-04-29 18:40:34.629 +07:00 [INF] Hosting environment: Development
+2026-04-29 18:40:34.629 +07:00 [INF] Content root path: C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api
+2026-04-29 18:59:12.456 +07:00 [INF] HTTP POST /api/auth/login responded 404 in 0.7634 ms
+2026-04-29 18:59:14.740 +07:00 [INF] HTTP POST /api/auth/login responded 404 in 0.0643 ms
+2026-04-29 18:59:40.620 +07:00 [INF] HTTP POST /api/auth/login responded 404 in 0.0105 ms
+2026-04-29 18:59:41.156 +07:00 [INF] HTTP POST /api/auth/login responded 404 in 0.0243 ms
+2026-04-29 18:59:41.764 +07:00 [INF] HTTP POST /api/auth/login responded 404 in 0.0123 ms
+2026-04-29 18:59:42.177 +07:00 [INF] HTTP POST /api/auth/login responded 404 in 0.0120 ms
+2026-04-29 19:04:57.571 +07:00 [INF] HTTP POST /api/auth/login responded 404 in 0.0144 ms
+2026-04-29 19:05:03.055 +07:00 [INF] HTTP POST /api/auth/login responded 404 in 0.0070 ms
+2026-04-29 19:05:07.548 +07:00 [INF] HTTP POST /api/auth/login responded 404 in 0.0132 ms
+2026-04-29 19:07:45.844 +07:00 [INF] Created default waiter user: waiter
+2026-04-29 19:07:46.076 +07:00 [INF] Now listening on: http://localhost:5141
+2026-04-29 19:07:46.078 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-04-29 19:07:46.078 +07:00 [INF] Hosting environment: Development
+2026-04-29 19:07:46.079 +07:00 [INF] Content root path: C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api
+2026-04-29 19:07:51.340 +07:00 [ERR] HTTP POST /api/auth/login responded 500 in 277.2494 ms
+Restaurant.Api.Common.Exceptions.UnauthorizedException: Invalid username or password.
+   at Restaurant.Api.Services.AuthService.LoginAsync(LoginRequest request, CancellationToken cancellationToken) in C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api\Services\AuthService.cs:line 35
+   at Restaurant.Api.Controllers.AuthController.Login(LoginRequest request, CancellationToken cancellationToken) in C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api\Controllers\AuthController.cs:line 26
+   at lambda_method231(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Restaurant.Api.Middleware.TenantContextMiddleware.InvokeAsync(HttpContext httpContext, ITenantContext tenantContext) in C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api\Middleware\TenantContextMiddleware.cs:line 33
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2026-04-29 19:07:51.376 +07:00 [WRN] Business rule violation: Invalid username or password.
+Restaurant.Api.Common.Exceptions.UnauthorizedException: Invalid username or password.
+   at Restaurant.Api.Services.AuthService.LoginAsync(LoginRequest request, CancellationToken cancellationToken) in C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api\Services\AuthService.cs:line 35
+   at Restaurant.Api.Controllers.AuthController.Login(LoginRequest request, CancellationToken cancellationToken) in C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api\Controllers\AuthController.cs:line 26
+   at lambda_method231(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Restaurant.Api.Middleware.TenantContextMiddleware.InvokeAsync(HttpContext httpContext, ITenantContext tenantContext) in C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api\Middleware\TenantContextMiddleware.cs:line 33
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at Restaurant.Api.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api\Middleware\ExceptionMiddleware.cs:line 22
+2026-04-29 19:07:53.038 +07:00 [ERR] HTTP POST /api/auth/login responded 500 in 111.5972 ms
+Restaurant.Api.Common.Exceptions.UnauthorizedException: Invalid username or password.
+   at Restaurant.Api.Services.AuthService.LoginAsync(LoginRequest request, CancellationToken cancellationToken) in C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api\Services\AuthService.cs:line 35
+   at Restaurant.Api.Controllers.AuthController.Login(LoginRequest request, CancellationToken cancellationToken) in C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api\Controllers\AuthController.cs:line 26
+   at lambda_method231(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Restaurant.Api.Middleware.TenantContextMiddleware.InvokeAsync(HttpContext httpContext, ITenantContext tenantContext) in C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api\Middleware\TenantContextMiddleware.cs:line 33
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2026-04-29 19:07:53.047 +07:00 [WRN] Business rule violation: Invalid username or password.
+Restaurant.Api.Common.Exceptions.UnauthorizedException: Invalid username or password.
+   at Restaurant.Api.Services.AuthService.LoginAsync(LoginRequest request, CancellationToken cancellationToken) in C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api\Services\AuthService.cs:line 35
+   at Restaurant.Api.Controllers.AuthController.Login(LoginRequest request, CancellationToken cancellationToken) in C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api\Controllers\AuthController.cs:line 26
+   at lambda_method231(Closure, Object)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.AwaitableObjectResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Restaurant.Api.Middleware.TenantContextMiddleware.InvokeAsync(HttpContext httpContext, ITenantContext tenantContext) in C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api\Middleware\TenantContextMiddleware.cs:line 33
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at Restaurant.Api.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api\Middleware\ExceptionMiddleware.cs:line 22
+2026-04-29 19:08:47.032 +07:00 [INF] HTTP POST /api/auth/login responded 200 in 154.5329 ms
+2026-04-29 19:08:47.270 +07:00 [INF] HTTP GET /api/auth/me responded 200 in 70.7866 ms
+2026-04-29 19:08:55.993 +07:00 [INF] HTTP POST /api/auth/logout responded 204 in 34.8791 ms
+2026-04-29 19:09:07.685 +07:00 [INF] HTTP POST /api/auth/login responded 200 in 77.8926 ms
+2026-04-29 19:09:07.823 +07:00 [INF] HTTP GET /api/auth/me responded 200 in 7.5028 ms
+2026-04-29 19:13:05.842 +07:00 [INF] HTTP POST /api/auth/logout responded 204 in 26.4922 ms
+2026-04-29 19:13:08.851 +07:00 [INF] HTTP POST /api/auth/login responded 200 in 72.9678 ms
+2026-04-29 19:13:08.973 +07:00 [INF] HTTP GET /api/auth/me responded 200 in 11.0961 ms
+2026-04-29 19:13:12.160 +07:00 [INF] HTTP POST /api/auth/logout responded 204 in 6.7914 ms
+2026-04-29 19:13:13.838 +07:00 [INF] HTTP POST /api/auth/login responded 200 in 84.8681 ms
+2026-04-29 19:13:13.962 +07:00 [INF] HTTP GET /api/auth/me responded 200 in 6.3335 ms
+2026-04-29 19:13:21.007 +07:00 [INF] HTTP POST /api/auth/logout responded 204 in 10.6140 ms
+2026-04-29 19:36:23.854 +07:00 [INF] Now listening on: http://localhost:5141
+2026-04-29 19:36:23.891 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-04-29 19:36:23.893 +07:00 [INF] Hosting environment: Development
+2026-04-29 19:36:23.894 +07:00 [INF] Content root path: C:\Users\THIEN\Desktop\PersonalProject\Restaurant\apps\api\Restaurant.Api
