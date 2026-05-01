@@ -127,6 +127,7 @@ public sealed class RestaurantDbContext(
             entity.Property(x => x.IsActive).HasDefaultValue(true);
             entity.Property(x => x.CreatedAt).IsRequired();
             entity.Property(x => x.UpdatedAt).IsRequired();
+            entity.Property(x => x.ImageObjectKey).HasMaxLength(500);
 
             entity.HasIndex(x => new { x.TenantId, x.CategoryId });
             entity.HasIndex(x => new { x.TenantId, x.IsAvailable });

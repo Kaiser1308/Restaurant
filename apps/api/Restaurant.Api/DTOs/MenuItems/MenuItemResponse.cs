@@ -7,4 +7,5 @@ public sealed record MenuItemResponse(
     decimal Price,
     string? Description,
     bool IsAvailable,
-    bool IsActive);
+    bool IsActive,
+    string? ImageUrl);

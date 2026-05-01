@@ -12,8 +12,8 @@ using Restaurant.Api.Infrastructure.Persistence;
 namespace Restaurant.Api.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    [Migration("20260429132152_AddBillsAndPayments")]
-    partial class AddBillsAndPayments
+    [Migration("20260501124955_AddMenuItemImage")]
+    partial class AddMenuItemImage
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -333,6 +333,11 @@ namespace Restaurant.Api.Infrastructure.Persistence.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)")
                         .HasColumnName("description");
+
+                    b.Property<string>("ImageObjectKey")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("image_object_key");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()

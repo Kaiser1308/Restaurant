@@ -62,5 +62,5 @@ public sealed class MenuItemService(
     }
 
     private static MenuItemResponse Map(MenuItem item)
-        => new(item.Id, item.CategoryId, item.Name, item.Price, item.Description, item.IsAvailable, item.IsActive);
+        => new(item.Id, item.CategoryId, item.Name, item.Price, item.Description, item.IsAvailable, item.IsActive, null);
 }
