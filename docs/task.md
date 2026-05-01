@@ -27,15 +27,15 @@ Done (2026-05-01)
 - [x] Remove unused or duplicate keys — removed dead branches (e.g. `orders.items.status` duplicate of `orders.status`, unused `bills`/`tables`/`menu`/`audit`/`auth` entries, `common.validation`), slimmed namespaces to keys referenced from code; `reports` namespace kept and wired to `ReportsPage`.
 
 ### 4) Route and flow verification (post-fix)
-- [x] Cashier: `/cashier/tables` → order payment → `/cashier/bills/:id` (existing routes); `/cashier/reports` → `ReportsPage` (placeholder, dùng namespace `reports`).
+- [x] Cashier: `/cashier/tables` → order payment → `/cashier/bills/:id` (existing routes); `/cashier/reports` → `ReportsPage` (placeholder, uses `reports` namespace).
 - [x] Owner: `/owner/bills`, `/owner/bills/:id`, `/owner/audit` (existing); `/owner/tables`, `/owner/menu`, `/owner/staff` → `ComingSoonPage` + `common.comingSoon`; `/owner/reports` → `ReportsPage`.
 - [x] Waiter: `/waiter/tables` → `/waiter/orders/:orderId` (unchanged); `/waiter/orders` (nav) → redirect `/waiter/tables`.
 
 ### 5) QA checklist
-- [x] Language switch without reload — `LanguageSwitcher` gọi `i18n.changeLanguage` (React re-render, không `location.reload`).
+- [x] Language switch without reload — `LanguageSwitcher` calls `i18n.changeLanguage` (React re-renders, no `location.reload`).
 - [x] Persistence after refresh — `apps/web/src/i18n/index.ts`: detector `caches: ['localStorage']`, `lookupLocalStorage: 'restaurant_lang'`.
-- [x] EN layout smoke (desktop/mobile) — layout dùng flex/grid + `npm run build` pass; không chạy Playwright/browser trong session này.
-- [x] Smoke roles — routes theo role trong `App.tsx` khớp sidebar; build pass.
+- [x] EN layout smoke (desktop/mobile) — layout uses flex/grid + `npm run build` passed; Playwright/browser not run in this session.
+- [x] Smoke roles — role-based routes in `App.tsx` match sidebar; build passed.
 
 ### 6) Build quality gates
 - [x] `cmd.exe /c "cd apps\\web && npm run lint"` — pass
@@ -47,12 +47,26 @@ Done (2026-05-01)
 - Role-based flows work after i18n changes (routing aligned with nav).
 - Lint/build pass with no errors.
 
-## Suggested Commit Sequence
+## Suggested Commit Sequence (Historical)
 1. `feat: complete i18n migration for waiter and cashier screens`
 2. `feat: complete i18n migration for owner, bills, and audit screens`
 3. `chore: finalize i18n qa and formatting consistency`
 
 ## Notes
-- **Locale cleanup:** Pared JSON to keys used from `App.tsx`, layouts, `StatusBadge`, `Toast`, `LanguageSwitcher`, `format.ts`, v.v.; removed `common.validation`; dropped duplicate/unreferenced auth navigation and login title keys.
-- **Nav parity:** Owner/Cashier “Reports” và Owner tables/menu/staff không còn 404; phục vụ bottom “Orders” không còn route trống.
-- **GitNexus:** MCP không có descriptor trong workspace; không chạy `gitnexus_impact` qua MCP.
+- **Locale cleanup:** Pared JSON to keys used from `App.tsx`, layouts, `StatusBadge`, `Toast`, `LanguageSwitcher`, and `format.ts`; removed `common.validation`; dropped duplicate/unreferenced auth navigation and login title keys.
+- **Nav parity:** Owner/Cashier `Reports` and Owner tables/menu/staff no longer return 404; Waiter bottom `Orders` no longer routes to an empty page.
+- **GitNexus:** For C# symbol-level limitations in some sessions, follow the documented fallback workflow.
+
+## GitNexus C# note
+- **Reference:** `docs/gitnexus-csharp-workaround.md`
+- **Use when:** MCP symbol-level `impact/context` fails for C# symbols.
+- **Do first:** Apply mandatory `repo: "Restaurant"` on all GitNexus MCP calls.
+
+## Temporary Policy (GitNexus C# unresolved symbols)
+- Continue implementation with compile-time blast radius + review loop.
+- Compile-time blast radius means: map `Controller -> Service Interface -> Service Implementation`, then list impacted direct callers before review.
+- For each task, run API build before review and again before commit:
+  - `cmd.exe /c "dotnet build apps\api\Restaurant.Api\Restaurant.Api.csproj"`
+- Keep scope file-bounded to the explicit file allowlist defined in the task plan (no out-of-scope edits).
+- Before any commit, run MCP `detect_changes` with `repo: "Restaurant"` and compare against the task allowlist.
+- If `detect_changes` shows a mismatch, block commit until scope is reconciled (revert/update plan) and rerun `detect_changes`.
