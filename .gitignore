@@ -10,3 +10,4 @@ TestResults
 coverage
 .DS_Store
 .gitnexus
+.worktrees/
