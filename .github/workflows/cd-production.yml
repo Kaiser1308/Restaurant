@@ -1,0 +1,80 @@
+name: CD Production
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  NAMESPACE: ${{ vars.GHCR_NAMESPACE }}
+
+jobs:
+  build-and-push:
+    name: Build and Push Release Images
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.image_tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate GHCR namespace
+        run: |
+          if [ -z "${NAMESPACE}" ]; then
+            echo "GHCR_NAMESPACE repo variable is required."
+            exit 1
+          fi
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute release tag
+        id: meta
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          echo "image_tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push API image
+        run: |
+          docker build -f apps/api/Restaurant.Api/Dockerfile -t ${REGISTRY}/${NAMESPACE}/restaurant-api:${{ steps.meta.outputs.image_tag }} .
+          docker push ${REGISTRY}/${NAMESPACE}/restaurant-api:${{ steps.meta.outputs.image_tag }}
+
+      - name: Build and push Web image
+        run: |
+          docker build -f apps/web/Dockerfile -t ${REGISTRY}/${NAMESPACE}/restaurant-web:${{ steps.meta.outputs.image_tag }} .
+          docker push ${REGISTRY}/${NAMESPACE}/restaurant-web:${{ steps.meta.outputs.image_tag }}
+
+      - name: Build and push Print Agent image
+        run: |
+          docker build -f apps/print-agent/Restaurant.PrintAgent/Dockerfile -t ${REGISTRY}/${NAMESPACE}/restaurant-print-agent:${{ steps.meta.outputs.image_tag }} .
+          docker push ${REGISTRY}/${NAMESPACE}/restaurant-print-agent:${{ steps.meta.outputs.image_tag }}
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build-and-push]
+    environment: production
+    steps:
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Deploy on production VPS
+        run: |
+          ssh -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            "IMAGE_TAG='${{ needs.build-and-push.outputs.image_tag }}' GHCR_NAMESPACE='${{ vars.GHCR_NAMESPACE }}' DEPLOY_PATH='${{ secrets.DEPLOY_PATH }}' bash -s" \
+            < deploy/deploy.sh
+
+      - name: Health check
+        run: |
+          curl --fail --show-error --silent "${{ secrets.HEALTHCHECK_URL }}"

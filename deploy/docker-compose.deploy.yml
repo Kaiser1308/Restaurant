@@ -1,0 +1,47 @@
+services:
+  api:
+    image: ghcr.io/${GHCR_NAMESPACE}/restaurant-api:${IMAGE_TAG}
+    container_name: restaurant-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "5141:8080"
+    depends_on:
+      - db
+
+  web:
+    image: ghcr.io/${GHCR_NAMESPACE}/restaurant-web:${IMAGE_TAG}
+    container_name: restaurant-web
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
+  print-agent:
+    image: ghcr.io/${GHCR_NAMESPACE}/restaurant-print-agent:${IMAGE_TAG}
+    container_name: restaurant-print-agent
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - api
+
+  db:
+    image: postgres:16
+    container_name: restaurant-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - restaurant-db-data:/var/lib/postgresql/data
+
+volumes:
+  restaurant-db-data:

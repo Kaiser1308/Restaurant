@@ -1,0 +1,90 @@
+name: CI PR
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  api-build-test:
+    name: API Build & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore API
+        run: dotnet restore apps/api/Restaurant.Api/Restaurant.Api.csproj
+
+      - name: Build API
+        run: dotnet build apps/api/Restaurant.Api/Restaurant.Api.csproj --configuration Release --no-restore
+
+      - name: Test API
+        run: dotnet test apps/api/Restaurant.Api/Restaurant.Api.csproj --configuration Release --no-build
+
+  print-agent-build-test:
+    name: Print Agent Build & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore Print Agent
+        run: dotnet restore apps/print-agent/Restaurant.PrintAgent/Restaurant.PrintAgent.csproj
+
+      - name: Build Print Agent
+        run: dotnet build apps/print-agent/Restaurant.PrintAgent/Restaurant.PrintAgent.csproj --configuration Release --no-restore
+
+      - name: Test Print Agent
+        run: dotnet test apps/print-agent/Restaurant.PrintAgent/Restaurant.PrintAgent.csproj --configuration Release --no-build
+
+  web-lint-build:
+    name: Web Lint & Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: apps/web
+        run: npm ci
+
+      - name: Lint web
+        working-directory: apps/web
+        run: npm run lint
+
+      - name: Build web
+        working-directory: apps/web
+        run: npm run build
