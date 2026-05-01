@@ -38,4 +38,18 @@ export const menuApi = {
     const response = await apiClient.patch<MenuItem>(`/api/menu-items/${id}/availability`, { isAvailable })
     return response.data
   },
+  async uploadMenuItemImage(id: string, image: File) {
+    const formData = new FormData()
+    formData.append('image', image)
+
+    const response = await apiClient.post<MenuItem>(`/api/menu-items/${id}/image`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+
+    return response.data
+  },
+  async deleteMenuItemImage(id: string) {
+    const response = await apiClient.delete<MenuItem>(`/api/menu-items/${id}/image`)
+    return response.data
+  },
 }

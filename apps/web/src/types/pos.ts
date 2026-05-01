@@ -25,6 +25,7 @@ export interface MenuItem {
   description?: string
   isAvailable: boolean
   isActive: boolean
+  imageUrl?: string
 }
 
 export interface OrderItem {
