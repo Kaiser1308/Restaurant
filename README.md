@@ -38,43 +38,42 @@ Print Agent:
 - ESC/POS TCP/LAN first
 - Mock mode
 
-## Getting Started
+## Hướng dẫn chạy dự án (Getting Started)
 
-### Prerequisites
+Dự án này là một Monorepo. Bạn nên mở toàn bộ thư mục `Restaurant` bằng VS Code.
 
-- .NET 9 SDK
-- Node.js 18+
-- Docker Desktop
-
-### Start PostgreSQL
-
+### 1. Khởi động Database (Docker)
+Yêu cầu đã cài đặt Docker Desktop. Mở terminal tại thư mục gốc và chạy:
 ```bash
 docker compose up -d
 ```
+*Database sẽ chạy tại `localhost:5432`.*
 
-### Start API
-
+### 2. Khởi động Backend (API)
+Mở một terminal mới và chạy lệnh sau (Lưu ý dùng cổng `5141` theo cấu hình):
 ```bash
 dotnet run --project apps/api/Restaurant.Api
 ```
+*Kiểm tra sức khỏe tại: `http://localhost:5141/health`*
+*Xem tài liệu API (Swagger): `http://localhost:5141/swagger`*
 
-Health check: `curl http://localhost:5000/health`
-
-### Start Web
-
+### 3. Khởi động Frontend (Web)
+Mở một terminal mới, di chuyển vào thư mục web và chạy:
 ```bash
 cd apps/web
 npm install
 npm run dev
 ```
+*Giao diện web sẽ chạy tại: `http://localhost:5173`*
 
-Opens at `http://localhost:5173`.
-
-### Start Print Agent
-
+### 4. Khởi động Print Agent (Máy in)
+Nếu bạn muốn thử nghiệm tính năng in ấn (chế độ Mock), mở một terminal mới và chạy:
 ```bash
 dotnet run --project apps/print-agent/Restaurant.PrintAgent
 ```
+
+> **Lưu ý cho Windows/WSL:** 
+> Nếu bạn đang dùng WSL nhưng cài .NET SDK trên Windows, hãy chạy các lệnh dotnet thông qua `cmd.exe /c`.
 
 ## Project Structure
 

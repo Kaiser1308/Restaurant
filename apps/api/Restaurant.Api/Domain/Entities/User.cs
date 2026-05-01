@@ -18,5 +18,8 @@ public sealed class User
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     public ICollection<Order> CreatedOrders { get; set; } = new List<Order>();
     public ICollection<OrderItem> CancelledOrderItems { get; set; } = new List<OrderItem>();
+    public ICollection<Bill> PaidBills { get; set; } = new List<Bill>();
+    public ICollection<Bill> VoidedBills { get; set; } = new List<Bill>();
+    public ICollection<VoidLog> VoidLogs { get; set; } = new List<VoidLog>();
     public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
 }

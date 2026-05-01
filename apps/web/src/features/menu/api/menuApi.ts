@@ -24,6 +24,16 @@ export const menuApi = {
     const response = await apiClient.post<MenuItem>('/api/menu-items', payload)
     return response.data
   },
+  async updateMenuItem(id: string, payload: {
+    categoryId: string
+    name: string
+    price: number
+    description?: string
+    isActive: boolean
+  }) {
+    const response = await apiClient.patch<MenuItem>(`/api/menu-items/${id}`, payload)
+    return response.data
+  },
   async updateAvailability(id: string, isAvailable: boolean) {
     const response = await apiClient.patch<MenuItem>(`/api/menu-items/${id}/availability`, { isAvailable })
     return response.data

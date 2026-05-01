@@ -196,7 +196,7 @@ public sealed class OrderService(
             order.Table.Name,
             order.Status.ToString(),
             items,
-            items.Sum(x => x.LineTotal),
+            items.Where(x => x.Status != OrderItemStatus.Cancelled.ToString()).Sum(x => x.LineTotal),
             order.CreatedAt);
     }
 }

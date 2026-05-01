@@ -18,4 +18,5 @@ public sealed class Order
     public RestaurantTable Table { get; set; } = null!;
     public User CreatedByUser { get; set; } = null!;
     public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
+    public Bill? Bill { get; set; }
 }

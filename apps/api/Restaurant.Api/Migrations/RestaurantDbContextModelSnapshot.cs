@@ -77,6 +77,190 @@ namespace Restaurant.Api.Migrations
                     b.ToTable("audit_logs", (string)null);
                 });
 
+            modelBuilder.Entity("Restaurant.Api.Domain.Entities.Bill", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("BillNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("bill_number");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("order_id");
+
+                    b.Property<DateTimeOffset>("PaidAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("paid_at");
+
+                    b.Property<Guid>("PaidByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("paid_by_user_id");
+
+                    b.Property<string>("PaymentType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("payment_type");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("total_amount");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<DateTimeOffset?>("VoidedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("voided_at");
+
+                    b.Property<Guid?>("VoidedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("voided_by_user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_bills");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_bills_order_id");
+
+                    b.HasIndex("PaidByUserId")
+                        .HasDatabaseName("ix_bills_paid_by_user_id");
+
+                    b.HasIndex("VoidedByUserId")
+                        .HasDatabaseName("ix_bills_voided_by_user_id");
+
+                    b.HasIndex("TenantId", "BillNumber")
+                        .IsUnique()
+                        .HasDatabaseName("ix_bills_tenant_id_bill_number");
+
+                    b.HasIndex("TenantId", "OrderId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_bills_tenant_id_order_id");
+
+                    b.HasIndex("TenantId", "PaidAt")
+                        .HasDatabaseName("ix_bills_tenant_id_paid_at");
+
+                    b.HasIndex("TenantId", "PaymentType")
+                        .HasDatabaseName("ix_bills_tenant_id_payment_type");
+
+                    b.HasIndex("TenantId", "Status")
+                        .HasDatabaseName("ix_bills_tenant_id_status");
+
+                    b.ToTable("bills", (string)null);
+                });
+
+            modelBuilder.Entity("Restaurant.Api.Domain.Entities.BillItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BillId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("bill_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("ItemNameSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("item_name_snapshot");
+
+                    b.Property<decimal>("LineTotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("line_total");
+
+                    b.Property<Guid?>("OrderItemId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("order_item_id");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("quantity");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<decimal>("UnitPriceSnapshot")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("unit_price_snapshot");
+
+                    b.HasKey("Id")
+                        .HasName("pk_bill_items");
+
+                    b.HasIndex("BillId")
+                        .HasDatabaseName("ix_bill_items_bill_id");
+
+                    b.HasIndex("OrderItemId")
+                        .HasDatabaseName("ix_bill_items_order_item_id");
+
+                    b.HasIndex("TenantId", "BillId")
+                        .HasDatabaseName("ix_bill_items_tenant_id_bill_id");
+
+                    b.ToTable("bill_items", (string)null);
+                });
+
+            modelBuilder.Entity("Restaurant.Api.Domain.Entities.BillNumberSequence", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<int>("LastSequence")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("last_sequence");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_bill_number_sequences");
+
+                    b.HasIndex("TenantId", "Date")
+                        .IsUnique()
+                        .HasDatabaseName("ix_bill_number_sequences_tenant_id_date");
+
+                    b.ToTable("bill_number_sequences", (string)null);
+                });
+
             modelBuilder.Entity("Restaurant.Api.Domain.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -538,6 +722,56 @@ namespace Restaurant.Api.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("Restaurant.Api.Domain.Entities.VoidLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BillId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("bill_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("reason");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_void_logs");
+
+                    b.HasIndex("BillId")
+                        .HasDatabaseName("ix_void_logs_bill_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_void_logs_user_id");
+
+                    b.HasIndex("TenantId", "BillId")
+                        .HasDatabaseName("ix_void_logs_tenant_id_bill_id");
+
+                    b.HasIndex("TenantId", "CreatedAt")
+                        .HasDatabaseName("ix_void_logs_tenant_id_created_at");
+
+                    b.HasIndex("TenantId", "UserId")
+                        .HasDatabaseName("ix_void_logs_tenant_id_user_id");
+
+                    b.ToTable("void_logs", (string)null);
+                });
+
             modelBuilder.Entity("Restaurant.Api.Domain.Entities.AuditLog", b =>
                 {
                     b.HasOne("Restaurant.Api.Domain.Entities.Tenant", "Tenant")
@@ -556,6 +790,85 @@ namespace Restaurant.Api.Migrations
                     b.Navigation("Tenant");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Restaurant.Api.Domain.Entities.Bill", b =>
+                {
+                    b.HasOne("Restaurant.Api.Domain.Entities.Order", "Order")
+                        .WithOne("Bill")
+                        .HasForeignKey("Restaurant.Api.Domain.Entities.Bill", "OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_bills_orders_order_id");
+
+                    b.HasOne("Restaurant.Api.Domain.Entities.User", "PaidByUser")
+                        .WithMany("PaidBills")
+                        .HasForeignKey("PaidByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_bills_users_paid_by_user_id");
+
+                    b.HasOne("Restaurant.Api.Domain.Entities.Tenant", "Tenant")
+                        .WithMany("Bills")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_bills_tenants_tenant_id");
+
+                    b.HasOne("Restaurant.Api.Domain.Entities.User", "VoidedByUser")
+                        .WithMany("VoidedBills")
+                        .HasForeignKey("VoidedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_bills_users_voided_by_user_id");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("PaidByUser");
+
+                    b.Navigation("Tenant");
+
+                    b.Navigation("VoidedByUser");
+                });
+
+            modelBuilder.Entity("Restaurant.Api.Domain.Entities.BillItem", b =>
+                {
+                    b.HasOne("Restaurant.Api.Domain.Entities.Bill", "Bill")
+                        .WithMany("Items")
+                        .HasForeignKey("BillId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_bill_items_bills_bill_id");
+
+                    b.HasOne("Restaurant.Api.Domain.Entities.OrderItem", "OrderItem")
+                        .WithMany("BillItems")
+                        .HasForeignKey("OrderItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_bill_items_order_items_order_item_id");
+
+                    b.HasOne("Restaurant.Api.Domain.Entities.Tenant", "Tenant")
+                        .WithMany("BillItems")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_bill_items_tenants_tenant_id");
+
+                    b.Navigation("Bill");
+
+                    b.Navigation("OrderItem");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("Restaurant.Api.Domain.Entities.BillNumberSequence", b =>
+                {
+                    b.HasOne("Restaurant.Api.Domain.Entities.Tenant", "Tenant")
+                        .WithMany("BillNumberSequences")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_bill_number_sequences_tenants_tenant_id");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Restaurant.Api.Domain.Entities.Category", b =>
@@ -704,6 +1017,43 @@ namespace Restaurant.Api.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("Restaurant.Api.Domain.Entities.VoidLog", b =>
+                {
+                    b.HasOne("Restaurant.Api.Domain.Entities.Bill", "Bill")
+                        .WithMany("VoidLogs")
+                        .HasForeignKey("BillId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_void_logs_bills_bill_id");
+
+                    b.HasOne("Restaurant.Api.Domain.Entities.Tenant", "Tenant")
+                        .WithMany("VoidLogs")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_void_logs_tenants_tenant_id");
+
+                    b.HasOne("Restaurant.Api.Domain.Entities.User", "User")
+                        .WithMany("VoidLogs")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_void_logs_users_user_id");
+
+                    b.Navigation("Bill");
+
+                    b.Navigation("Tenant");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Restaurant.Api.Domain.Entities.Bill", b =>
+                {
+                    b.Navigation("Items");
+
+                    b.Navigation("VoidLogs");
+                });
+
             modelBuilder.Entity("Restaurant.Api.Domain.Entities.Category", b =>
                 {
                     b.Navigation("MenuItems");
@@ -716,7 +1066,14 @@ namespace Restaurant.Api.Migrations
 
             modelBuilder.Entity("Restaurant.Api.Domain.Entities.Order", b =>
                 {
+                    b.Navigation("Bill");
+
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("Restaurant.Api.Domain.Entities.OrderItem", b =>
+                {
+                    b.Navigation("BillItems");
                 });
 
             modelBuilder.Entity("Restaurant.Api.Domain.Entities.RestaurantTable", b =>
@@ -727,6 +1084,12 @@ namespace Restaurant.Api.Migrations
             modelBuilder.Entity("Restaurant.Api.Domain.Entities.Tenant", b =>
                 {
                     b.Navigation("AuditLogs");
+
+                    b.Navigation("BillItems");
+
+                    b.Navigation("BillNumberSequences");
+
+                    b.Navigation("Bills");
 
                     b.Navigation("Categories");
 
@@ -741,6 +1104,8 @@ namespace Restaurant.Api.Migrations
                     b.Navigation("RestaurantTables");
 
                     b.Navigation("Users");
+
+                    b.Navigation("VoidLogs");
                 });
 
             modelBuilder.Entity("Restaurant.Api.Domain.Entities.User", b =>
@@ -751,7 +1116,13 @@ namespace Restaurant.Api.Migrations
 
                     b.Navigation("CreatedOrders");
 
+                    b.Navigation("PaidBills");
+
                     b.Navigation("RefreshTokens");
+
+                    b.Navigation("VoidLogs");
+
+                    b.Navigation("VoidedBills");
                 });
 #pragma warning restore 612, 618
         }

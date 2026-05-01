@@ -7,7 +7,7 @@ using Restaurant.Api.Services;
 namespace Restaurant.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/menu-items")]
 [Authorize]
 public sealed class MenuItemsController(
     IMenuItemService menuItemService,
