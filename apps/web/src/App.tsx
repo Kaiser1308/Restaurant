@@ -2,6 +2,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { ProtectedRoute, PublicRoute, RoleRoute } from './components/ProtectedRoute'
 import { useAuth } from './features/auth/hooks/useAuth'
+import { useTranslation } from 'react-i18next'
+import i18n from './i18n'
 import Button from './components/Button'
 import Input from './components/Input'
 import Card from './components/Card'
@@ -9,7 +11,7 @@ import WaiterLayout from './layouts/WaiterLayout'
 import CashierLayout from './layouts/CashierLayout'
 import OwnerLayout from './layouts/OwnerLayout'
 import type { LoginRequest } from '@/types'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { getDefaultPathByRole } from '@/features/auth/utils/roleAccess'
 import Toast from './components/Toast'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -18,6 +20,7 @@ import { tablesApi } from '@/features/tables/api/tablesApi'
 import { ordersApi } from '@/features/orders/api/ordersApi'
 import { menuApi } from '@/features/menu/api/menuApi'
 import type { RestaurantTable } from '@/types'
+import { useLocaleFormat } from '@/utils/format'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,18 +36,19 @@ const queryClient = new QueryClient({
 
 function LoginPage() {
   const { login, isLoginLoading } = useAuth()
+  const { t } = useTranslation('auth')
   const [form, setForm] = useState<LoginRequest>({ username: '', password: '' })
-  const [toastMessage, setToastMessage] = useState<string>('')
-
-  useEffect(() => {
-    const authNotice = sessionStorage.getItem('authNotice')
-    if (!authNotice) {
-      return
+  const [toastMessage, setToastMessage] = useState<string>(() => {
+    const notice = sessionStorage.getItem('authNotice')
+    if (notice) {
+      sessionStorage.removeItem('authNotice')
+      if (notice === '__SESSION_EXPIRED__') {
+        return i18n.t('common:sessionExpired')
+      }
+      return notice
     }
-
-    setToastMessage(authNotice)
-    sessionStorage.removeItem('authNotice')
-  }, [])
+    return ''
+  })
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -52,7 +56,7 @@ function LoginPage() {
     const normalizedPassword = form.password.trim()
 
     if (!normalizedUsername || !normalizedPassword) {
-      setToastMessage('Vui lòng nhập tài khoản và mật khẩu hợp lệ.')
+      setToastMessage(t('actions.invalidCredentials'))
       return
     }
 
@@ -63,7 +67,7 @@ function LoginPage() {
       })
       window.location.href = getDefaultPathByRole(result.user.role)
     } catch {
-      setToastMessage('Đăng nhập thất bại. Vui lòng kiểm tra tài khoản hoặc mật khẩu.')
+      setToastMessage(t('actions.loginFailed'))
     }
   }
 
@@ -73,21 +77,21 @@ function LoginPage() {
         <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
           <div className="text-center space-y-2">
             <span className="mx-auto inline-flex rounded-full border border-[#ffd3bf] bg-[#fff2eb] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--color-primary)]">
-              Cashier Demo
+              {t('login.cashierDemo')}
             </span>
-            <h1 className="text-3xl font-extrabold tracking-tight text-[var(--color-on-surface)]">Restaurant POS</h1>
-            <p className="font-medium text-[var(--color-on-surface-variant)]">Chào mừng anh quay trở lại!</p>
+            <h1 className="text-3xl font-extrabold tracking-tight text-[var(--color-on-surface)]">{t('login.restaurantPos')}</h1>
+            <p className="font-medium text-[var(--color-on-surface-variant)]">{t('login.welcome')}</p>
           </div>
-          
+
           <div className="space-y-4">
             <Input
-              label="Tài khoản"
-              placeholder="Nhập tên đăng nhập..."
+              label={t('labels.username')}
+              placeholder={t('login.usernamePlaceholder')}
               value={form.username}
               onChange={(e) => setForm((prev) => ({ ...prev, username: e.target.value }))}
             />
             <Input
-              label="Mật khẩu"
+              label={t('labels.password')}
               type="password"
               placeholder="••••••••"
               value={form.password}
@@ -97,11 +101,11 @@ function LoginPage() {
 
           <div className="flex flex-col gap-3 pt-2">
             <Button className="w-full" size="lg" type="submit" disabled={isLoginLoading}>
-              {isLoginLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+              {isLoginLoading ? t('actions.login') + '...' : t('actions.login')}
             </Button>
             <div className="flex gap-2">
-              <Button variant="secondary" className="flex-1">Quét QR</Button>
-              <Button variant="ghost" className="flex-1">Hỗ trợ</Button>
+              <Button variant="secondary" className="flex-1">{t('login.actions.qrScan')}</Button>
+              <Button variant="ghost" className="flex-1">{t('login.actions.support')}</Button>
             </div>
           </div>
         </form>
@@ -159,6 +163,8 @@ function WaiterOrderPage() {
   const [search, setSearch] = useState('')
   const { data: menuItems = [] } = useMenuItems(selectedCategoryId, search)
   const [reasonByItem, setReasonByItem] = useState<Record<string, string>>({})
+  const { t } = useTranslation('orders')
+  const { formatMoney } = useLocaleFormat()
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['orderDetail', orderId] })
 
@@ -180,7 +186,7 @@ function WaiterOrderPage() {
   })
 
   if (!order) {
-    return <p>Loading order...</p>
+    return <p>{t('loading')}</p>
   }
 
   return (
@@ -192,7 +198,7 @@ function WaiterOrderPage() {
           {order.items.map(item => (
             <div key={item.id} className="rounded border p-3">
               <p className="font-semibold">{item.itemNameSnapshot}</p>
-              <p className="text-sm">{item.status} - {item.lineTotal.toLocaleString('vi-VN')}đ</p>
+              <p className="text-sm">{item.status} - {formatMoney(item.lineTotal)}</p>
               {item.status === 'Pending' ? (
                 <div className="mt-2 space-y-2">
                   <div className="flex gap-2">
@@ -201,7 +207,7 @@ function WaiterOrderPage() {
                     <Button size="sm" onClick={() => updateItem.mutate({ itemId: item.id, quantity: item.quantity + 1 })}>+</Button>
                   </div>
                   <Input
-                    placeholder="Lý do hủy"
+                    placeholder={t('actions.reasonPlaceholder')}
                     value={reasonByItem[item.id] || ''}
                     onChange={(e) => setReasonByItem(prev => ({ ...prev, [item.id]: e.target.value }))}
                   />
@@ -210,20 +216,20 @@ function WaiterOrderPage() {
                     size="sm"
                     onClick={() => cancelItem.mutate({ itemId: item.id, reason: (reasonByItem[item.id] || '').trim() })}
                   >
-                    Hủy món
+                    {t('actions.cancelItem')}
                   </Button>
                 </div>
               ) : null}
             </div>
           ))}
-          <p className="font-bold">Total: {order.totalAmount.toLocaleString('vi-VN')}đ</p>
-          <Button onClick={() => sendToKitchen.mutate()} disabled={sendToKitchen.isPending}>Send to Kitchen</Button>
+          <p className="font-bold">{t('items.title')}: {formatMoney(order.totalAmount)}</p>
+          <Button onClick={() => sendToKitchen.mutate()} disabled={sendToKitchen.isPending}>{t('actions.sendToKitchen')}</Button>
         </div>
       </Card>
 
       <Card>
         <div className="space-y-3">
-          <Input placeholder="Search menu..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input placeholder={t('placeholder.searchMenu')} value={search} onChange={(e) => setSearch(e.target.value)} />
           <div className="flex flex-wrap gap-2">
             {categories.map(category => (
               <Button
@@ -239,18 +245,37 @@ function WaiterOrderPage() {
           {menuItems.map(item => (
             <div key={item.id} className="rounded border p-3">
               <p className="font-semibold">{item.name}</p>
-              <p className="text-sm">{item.price.toLocaleString('vi-VN')}đ</p>
+              <p className="text-sm">{formatMoney(item.price)}</p>
               <Button
                 size="sm"
                 disabled={!item.isAvailable || addItem.isPending}
                 onClick={() => addItem.mutate(item.id)}
               >
-                Add
+                {t('actions.addItem')}
               </Button>
             </div>
           ))}
         </div>
       </Card>
+    </div>
+  )
+}
+
+function CashierTablesPage() {
+  const { data: tables = [] } = useTables()
+  const { t } = useTranslation('tables')
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-bold">{t('title')}</h2>
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        {tables.map((table) => (
+          <button key={table.id} className="rounded-lg border p-4 text-left" disabled>
+            <p className="font-semibold">{table.name}</p>
+            <p className="text-sm text-[var(--color-on-surface-variant)]">{table.status}</p>
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
@@ -263,6 +288,7 @@ function OwnerDashboardPage() {
   const [menuName, setMenuName] = useState('')
   const [menuPrice, setMenuPrice] = useState('50000')
   const { data: categories = [] } = useCategories()
+  const { t } = useTranslation(['tables', 'menu', 'common'])
 
   const createTable = useMutation({
     mutationFn: () => tablesApi.create(tableName.trim()),
@@ -294,25 +320,25 @@ function OwnerDashboardPage() {
   return (
     <div className="space-y-4">
       <Card>
-        <p className="mb-2 font-semibold">Table Management</p>
+        <p className="mb-2 font-semibold">{t('tables:management')}</p>
         <div className="flex gap-2">
-          <Input value={tableName} onChange={(e) => setTableName(e.target.value)} placeholder="Table name" />
-          <Button onClick={() => createTable.mutate()} disabled={!tableName.trim()}>Create</Button>
+          <Input value={tableName} onChange={(e) => setTableName(e.target.value)} placeholder={t('tables:placeholder.tableName')} />
+          <Button onClick={() => createTable.mutate()} disabled={!tableName.trim()}>{t('common:actions.create')}</Button>
         </div>
         <div className="mt-3 space-y-2">
-          {tables.map(t => <p key={t.id}>{t.name} - {t.status}</p>)}
+          {tables.map(tbl => <p key={tbl.id}>{tbl.name} - {tbl.status}</p>)}
         </div>
       </Card>
       <Card>
-        <p className="mb-2 font-semibold">Menu Management</p>
+        <p className="mb-2 font-semibold">{t('menu:management')}</p>
         <div className="mb-2 flex gap-2">
-          <Input value={categoryName} onChange={(e) => setCategoryName(e.target.value)} placeholder="Category name" />
-          <Button onClick={() => createCategory.mutate()} disabled={!categoryName.trim()}>Create Category</Button>
+          <Input value={categoryName} onChange={(e) => setCategoryName(e.target.value)} placeholder={t('menu:category.createPlaceholder')} />
+          <Button onClick={() => createCategory.mutate()} disabled={!categoryName.trim()}>{t('menu:category.create')}</Button>
         </div>
         <div className="flex gap-2">
-          <Input value={menuName} onChange={(e) => setMenuName(e.target.value)} placeholder="Menu item name" />
-          <Input value={menuPrice} onChange={(e) => setMenuPrice(e.target.value)} placeholder="Price" />
-          <Button onClick={() => createMenuItem.mutate()} disabled={!menuName.trim() || categories.length === 0}>Create Item</Button>
+          <Input value={menuName} onChange={(e) => setMenuName(e.target.value)} placeholder={t('menu:menuItem.createPlaceholder')} />
+          <Input value={menuPrice} onChange={(e) => setMenuPrice(e.target.value)} placeholder={t('common:labels.price')} />
+          <Button onClick={() => createMenuItem.mutate()} disabled={!menuName.trim() || categories.length === 0}>{t('menu:menuItem.create')}</Button>
         </div>
       </Card>
     </div>
@@ -321,9 +347,10 @@ function OwnerDashboardPage() {
 
 function KitchenPage() {
   const { data: orders = [] } = useKitchenOrders()
+  const { t } = useTranslation('common')
   return (
     <div className="space-y-3">
-      <h2 className="text-xl font-bold">Kitchen Display</h2>
+      <h2 className="text-xl font-bold">{t('kitchen.title')}</h2>
       {(orders as Array<NonNullable<typeof orders[number]>>).map(order => (
         <Card key={order.id}>
           <p className="font-semibold">{order.tableName} - {order.status}</p>
@@ -357,7 +384,7 @@ function AppContent() {
               <WaiterLayout>
                 <Routes>
                   <Route path="" element={<Navigate to="tables" replace />} />
-                  <Route path="tables" element={<WaiterTablesPage />} />
+                  <Route path="tables" element={<CashierTablesPage />} />
                   <Route path="orders/:orderId" element={<WaiterOrderPage />} />
                 </Routes>
               </WaiterLayout>
