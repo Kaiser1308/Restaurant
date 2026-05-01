@@ -44,4 +44,21 @@ public sealed class MenuItemsController(
         var result = await menuItemService.UpdateAvailabilityAsync(id, request, cancellationToken);
         return Ok(result);
     }
+
+    [HttpPost("{id:guid}/image")]
+    [Authorize(Policy = "OwnerOrManager")]
+    [RequestSizeLimit(2 * 1024 * 1024)]
+    public async Task<ActionResult<MenuItemResponse>> UploadImage(Guid id, IFormFile image, CancellationToken cancellationToken)
+    {
+        var result = await menuItemService.UploadImageAsync(id, image, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpDelete("{id:guid}/image")]
+    [Authorize(Policy = "OwnerOrManager")]
+    public async Task<ActionResult<MenuItemResponse>> DeleteImage(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await menuItemService.DeleteImageAsync(id, cancellationToken);
+        return Ok(result);
+    }
 }
