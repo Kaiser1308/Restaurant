@@ -7,6 +7,8 @@ import i18n from './i18n'
 import Button from './components/Button'
 import Input from './components/Input'
 import Card from './components/Card'
+import Modal from './components/Modal'
+import StatusBadge from './components/StatusBadge'
 import WaiterLayout from './layouts/WaiterLayout'
 import CashierLayout from './layouts/CashierLayout'
 import OwnerLayout from './layouts/OwnerLayout'
@@ -15,11 +17,12 @@ import { useState } from 'react'
 import { getDefaultPathByRole } from '@/features/auth/utils/roleAccess'
 import Toast from './components/Toast'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useCategories, useCreateOrder, useKitchenOrders, useMenuItems, useOrderDetail, useTables } from '@/features/pos/hooks/usePosData'
+import { useAuditLogs, useBill, useBillPreview, useBills, useCategories, useCreateOrder, useKitchenOrders, useMenuItems, useOrderDetail, useTables } from '@/features/pos/hooks/usePosData'
 import { tablesApi } from '@/features/tables/api/tablesApi'
 import { ordersApi } from '@/features/orders/api/ordersApi'
 import { menuApi } from '@/features/menu/api/menuApi'
-import type { RestaurantTable } from '@/types'
+import { billsApi } from '@/features/bills/api/billsApi'
+import type { BillStatus, PaymentType, RestaurantTable } from '@/types'
 import { useLocaleFormat } from '@/utils/format'
 
 const queryClient = new QueryClient({
@@ -262,18 +265,265 @@ function WaiterOrderPage() {
 }
 
 function CashierTablesPage() {
+  const navigate = useNavigate()
   const { data: tables = [] } = useTables()
   const { t } = useTranslation('tables')
+  const [toastMessage, setToastMessage] = useState('')
+
+  const openPayment = async (table: RestaurantTable) => {
+    try {
+      const active = await tablesApi.getActiveOrder(table.id)
+      navigate(`/cashier/orders/${active.id}/payment`)
+    } catch {
+      setToastMessage('No active order for this table.')
+    }
+  }
 
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold">{t('title')}</h2>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         {tables.map((table) => (
-          <button key={table.id} className="rounded-lg border p-4 text-left" disabled>
+          <button
+            key={table.id}
+            className="rounded-lg border p-4 text-left disabled:opacity-50"
+            disabled={table.status !== 'Occupied' && table.status !== 'NeedsPayment'}
+            onClick={() => openPayment(table)}
+          >
             <p className="font-semibold">{table.name}</p>
             <p className="text-sm text-[var(--color-on-surface-variant)]">{table.status}</p>
           </button>
+        ))}
+      </div>
+      {toastMessage ? <Toast message={toastMessage} variant="error" onClose={() => setToastMessage('')} /> : null}
+    </div>
+  )
+}
+
+function CashierPaymentPage() {
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const { orderId = '' } = useParams()
+  const { data: order } = useOrderDetail(orderId)
+  const { data: preview } = useBillPreview(orderId)
+  const [paymentType, setPaymentType] = useState<PaymentType>('Cash')
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [toastMessage, setToastMessage] = useState('')
+  const { formatMoney } = useLocaleFormat()
+
+  const payOrder = useMutation({
+    mutationFn: () => billsApi.payOrder(orderId, paymentType),
+    onSuccess: async (result) => {
+      await queryClient.invalidateQueries({ queryKey: ['tables'] })
+      await queryClient.invalidateQueries({ queryKey: ['bills'] })
+      navigate(`/cashier/bills/${result.billId}`)
+    },
+    onError: () => setToastMessage('Payment failed. Please verify order and retry.'),
+  })
+
+  if (!order || !preview) {
+    return <p>Loading bill preview...</p>
+  }
+
+  return (
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_360px]">
+      <Card>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xl font-bold">{preview.tableName}</p>
+              <p className="text-sm text-[var(--color-on-surface-variant)]">Order #{order.id.slice(0, 8)}</p>
+            </div>
+            <StatusBadge status={order.status} />
+          </div>
+          {preview.items.map(item => (
+            <div key={item.id} className="flex justify-between rounded border p-3">
+              <div>
+                <p className="font-semibold">{item.itemNameSnapshot}</p>
+                <p className="text-sm text-[var(--color-on-surface-variant)]">x{item.quantity}</p>
+              </div>
+              <p className="font-semibold">{formatMoney(item.lineTotal)}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card>
+        <div className="space-y-4">
+          <p className="text-lg font-bold">Subtotal</p>
+          <p className="text-3xl font-extrabold">{formatMoney(preview.totalAmount)}</p>
+          <div className="space-y-2">
+            {(['Cash', 'Qr', 'BankTransfer'] as PaymentType[]).map(type => (
+              <Button
+                key={type}
+                className="w-full"
+                variant={paymentType === type ? 'primary' : 'secondary'}
+                onClick={() => setPaymentType(type)}
+              >
+                {type}
+              </Button>
+            ))}
+          </div>
+          <Button className="w-full" disabled={payOrder.isPending} onClick={() => setConfirmOpen(true)}>
+            Confirm payment
+          </Button>
+        </div>
+      </Card>
+
+      <Modal open={confirmOpen}>
+        <div className="space-y-4">
+          <p className="text-lg font-bold">Confirm payment received?</p>
+          <p className="text-sm text-[var(--color-on-surface-variant)]">
+            After confirm, the order closes and table {preview.tableName} returns to Available.
+          </p>
+          <div className="flex gap-2">
+            <Button variant="secondary" className="flex-1" onClick={() => setConfirmOpen(false)}>Cancel</Button>
+            <Button className="flex-1" disabled={payOrder.isPending} onClick={() => payOrder.mutate()}>
+              Pay {paymentType}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+      {toastMessage ? <Toast message={toastMessage} variant="error" onClose={() => setToastMessage('')} /> : null}
+    </div>
+  )
+}
+
+function BillsListPage({ basePath }: { basePath: '/cashier' | '/owner' }) {
+  const navigate = useNavigate()
+  const { formatMoney, formatDateTime } = useLocaleFormat()
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10))
+  const [status, setStatus] = useState<BillStatus | ''>('')
+  const { data: bills = [] } = useBills(date, status || undefined)
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-end gap-2">
+        <Input label="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        <div className="flex gap-2">
+          {(['', 'Paid', 'Voided'] as Array<BillStatus | ''>).map(value => (
+            <Button key={value || 'all'} variant={status === value ? 'primary' : 'secondary'} onClick={() => setStatus(value)}>
+              {value || 'All'}
+            </Button>
+          ))}
+        </div>
+      </div>
+      <div className="space-y-2">
+        {bills.map(bill => (
+          <button
+            key={bill.id}
+            className="flex w-full items-center justify-between rounded border p-3 text-left"
+            onClick={() => navigate(`${basePath}/bills/${bill.id}`)}
+          >
+            <div>
+              <p className="font-semibold">{bill.billNumber} - {bill.tableName}</p>
+              <p className="text-sm text-[var(--color-on-surface-variant)]">{bill.paymentType} · {formatDateTime(bill.paidAt)}</p>
+            </div>
+            <div className="text-right">
+              <p className="font-bold">{formatMoney(bill.totalAmount)}</p>
+              <StatusBadge status={bill.status} />
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function BillDetailPage({ canVoid }: { canVoid: boolean }) {
+  const queryClient = useQueryClient()
+  const { billId = '' } = useParams()
+  const { data: bill } = useBill(billId)
+  const [voidOpen, setVoidOpen] = useState(false)
+  const [reason, setReason] = useState('')
+  const [toastMessage, setToastMessage] = useState('')
+  const { formatMoney, formatDateTime } = useLocaleFormat()
+
+  const voidBill = useMutation({
+    mutationFn: () => billsApi.void(billId, reason.trim()),
+    onSuccess: async () => {
+      setVoidOpen(false)
+      setReason('')
+      await queryClient.invalidateQueries({ queryKey: ['bill', billId] })
+      await queryClient.invalidateQueries({ queryKey: ['bills'] })
+      await queryClient.invalidateQueries({ queryKey: ['auditLogs'] })
+    },
+    onError: () => setToastMessage('Void bill failed. Check permission or bill status.'),
+  })
+
+  if (!bill) {
+    return <p>Loading bill...</p>
+  }
+
+  return (
+    <Card>
+      <div className="space-y-4">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-xl font-bold">Bill {bill.billNumber}</p>
+            <p className="text-sm text-[var(--color-on-surface-variant)]">{bill.tableName} · {formatDateTime(bill.paidAt)}</p>
+          </div>
+          <StatusBadge status={bill.status} />
+        </div>
+        {bill.items.map(item => (
+          <div key={item.id} className="flex justify-between rounded border p-3">
+            <p>{item.itemNameSnapshot} x {item.quantity}</p>
+            <p className="font-semibold">{formatMoney(item.lineTotal)}</p>
+          </div>
+        ))}
+        <div className="flex justify-between border-t pt-3 text-lg font-bold">
+          <span>Total</span>
+          <span>{formatMoney(bill.totalAmount)}</span>
+        </div>
+        {bill.voidReason ? <p className="text-sm text-[var(--color-error)]">Void reason: {bill.voidReason}</p> : null}
+        {canVoid && bill.status === 'Paid' ? (
+          <Button variant="danger" onClick={() => setVoidOpen(true)}>Void bill</Button>
+        ) : null}
+      </div>
+
+      <Modal open={voidOpen}>
+        <div className="space-y-4">
+          <p className="text-lg font-bold">Void bill {bill.billNumber}</p>
+          <Input label="Reason" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Enter void reason" />
+          <div className="flex gap-2">
+            <Button variant="secondary" className="flex-1" onClick={() => setVoidOpen(false)}>Cancel</Button>
+            <Button variant="danger" className="flex-1" disabled={!reason.trim() || voidBill.isPending} onClick={() => voidBill.mutate()}>
+              Confirm void
+            </Button>
+          </div>
+        </div>
+      </Modal>
+      {toastMessage ? <Toast message={toastMessage} variant="error" onClose={() => setToastMessage('')} /> : null}
+    </Card>
+  )
+}
+
+function AuditLogsPage() {
+  const [action, setAction] = useState('')
+  const { formatDateTime } = useLocaleFormat()
+  const { data } = useAuditLogs({ action: action || undefined, page: 1, pageSize: 50 })
+  const logs = data?.items ?? []
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-end gap-2">
+        <Input label="Action" value={action} onChange={(e) => setAction(e.target.value)} placeholder="pay_bill, void_bill..." />
+        <Button variant="secondary" onClick={() => setAction('')}>Clear</Button>
+      </div>
+      <div className="space-y-2">
+        {logs.map(log => (
+          <Card key={log.id}>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="font-semibold">{log.action}</p>
+                <p className="text-sm text-[var(--color-on-surface-variant)]">
+                  {log.entityType} · {log.entityId} · {log.userName || 'System'}
+                </p>
+                {log.reason ? <p className="mt-1 text-sm">Reason: {log.reason}</p> : null}
+              </div>
+              <p className="text-sm text-[var(--color-on-surface-variant)]">{formatDateTime(log.createdAt)}</p>
+            </div>
+          </Card>
         ))}
       </div>
     </div>
@@ -384,7 +634,7 @@ function AppContent() {
               <WaiterLayout>
                 <Routes>
                   <Route path="" element={<Navigate to="tables" replace />} />
-                  <Route path="tables" element={<CashierTablesPage />} />
+                  <Route path="tables" element={<WaiterTablesPage />} />
                   <Route path="orders/:orderId" element={<WaiterOrderPage />} />
                 </Routes>
               </WaiterLayout>
@@ -399,7 +649,10 @@ function AppContent() {
               <CashierLayout>
                 <Routes>
                   <Route path="" element={<Navigate to="tables" replace />} />
-                  <Route path="tables" element={<WaiterTablesPage />} />
+                  <Route path="tables" element={<CashierTablesPage />} />
+                  <Route path="orders/:orderId/payment" element={<CashierPaymentPage />} />
+                  <Route path="bills" element={<BillsListPage basePath="/cashier" />} />
+                  <Route path="bills/:billId" element={<BillDetailPage canVoid={false} />} />
                 </Routes>
               </CashierLayout>
             }
@@ -415,6 +668,9 @@ function AppContent() {
                   <Route path="" element={<Navigate to="dashboard" replace />} />
                   <Route path="dashboard" element={<OwnerDashboardPage />} />
                   <Route path="kitchen" element={<KitchenPage />} />
+                  <Route path="bills" element={<BillsListPage basePath="/owner" />} />
+                  <Route path="bills/:billId" element={<BillDetailPage canVoid />} />
+                  <Route path="audit" element={<AuditLogsPage />} />
                 </Routes>
               </OwnerLayout>
             }
