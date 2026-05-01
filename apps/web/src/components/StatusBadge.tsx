@@ -1,4 +1,23 @@
+import { useTranslation } from 'react-i18next'
+
+const statusKeyMap: Record<string, string> = {
+  available: 'common:status.available',
+  occupied: 'common:status.occupied',
+  needspayment: 'common:status.needsPayment',
+  reserved: 'common:status.reserved',
+  closed: 'common:status.closed',
+  pending: 'common:status.pending',
+  senttokitchen: 'common:status.sentToKitchen',
+  cooking: 'orders:status.cooking',
+  confirmed: 'common:status.completed',
+  ready: 'common:status.completed',
+  paid: 'common:status.paid',
+  voided: 'common:status.voided',
+  cancelled: 'common:status.cancelled',
+}
+
 export default function StatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation()
   const normalized = status.trim().toLowerCase()
   const palette: Record<string, string> = {
     available: 'bg-[#eef3ee] text-[#2b372b] border-[#d8dbd8]',
@@ -12,10 +31,11 @@ export default function StatusBadge({ status }: { status: string }) {
   }
 
   const style = palette[normalized] ?? 'bg-[var(--color-surface-low)] text-[var(--color-on-surface-variant)] border-[var(--color-outline-variant)]'
+  const translationKey = statusKeyMap[normalized]
 
   return (
-    <span className={`inline-flex h-7 items-center rounded-full border px-3 text-xs font-semibold capitalize ${style}`}>
-      {status}
+    <span className={`inline-flex h-7 items-center rounded-full border px-3 text-xs font-semibold ${style}`}>
+      {translationKey ? t(translationKey) : status}
     </span>
   )
 }

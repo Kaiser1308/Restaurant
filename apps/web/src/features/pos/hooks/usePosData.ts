@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { menuApi } from '@/features/menu/api/menuApi'
 import { ordersApi } from '@/features/orders/api/ordersApi'
 import { tablesApi } from '@/features/tables/api/tablesApi'
+import { billsApi } from '@/features/bills/api/billsApi'
+import { auditApi } from '@/features/audit/api/auditApi'
 
 export function useTables() {
   return useQuery({
@@ -61,5 +63,35 @@ export function useCreateOrder() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tables'] })
     },
+  })
+}
+
+export function useBillPreview(orderId?: string) {
+  return useQuery({
+    queryKey: ['billPreview', orderId],
+    queryFn: () => billsApi.previewOrder(orderId!),
+    enabled: !!orderId,
+  })
+}
+
+export function useBill(id?: string) {
+  return useQuery({
+    queryKey: ['bill', id],
+    queryFn: () => billsApi.get(id!),
+    enabled: !!id,
+  })
+}
+
+export function useBills(date?: string, status?: string) {
+  return useQuery({
+    queryKey: ['bills', date, status],
+    queryFn: () => billsApi.list({ date, status }),
+  })
+}
+
+export function useAuditLogs(params?: { action?: string; entityType?: string; page?: number; pageSize?: number }) {
+  return useQuery({
+    queryKey: ['auditLogs', params],
+    queryFn: () => auditApi.list(params),
   })
 }

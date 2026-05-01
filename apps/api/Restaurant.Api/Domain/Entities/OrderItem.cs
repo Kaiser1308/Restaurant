@@ -23,4 +23,5 @@ public sealed class OrderItem
     public Order Order { get; set; } = null!;
     public MenuItem MenuItem { get; set; } = null!;
     public User? CancelledByUser { get; set; }
+    public ICollection<BillItem> BillItems { get; set; } = new List<BillItem>();
 }

@@ -1,7 +1,7 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5141'
-const SESSION_EXPIRED_MESSAGE = 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'
+const SESSION_EXPIRED_KEY = '__SESSION_EXPIRED__'
 
 export interface AuthTokens {
   accessToken: string
@@ -94,7 +94,7 @@ apiClient.interceptors.response.use(
         localStorage.removeItem('accessToken')
         localStorage.removeItem('refreshToken')
         onTokenRefreshed(null)
-        sessionStorage.setItem('authNotice', SESSION_EXPIRED_MESSAGE)
+        sessionStorage.setItem('authNotice', SESSION_EXPIRED_KEY)
         
         if (window.location.pathname !== '/login') {
           window.location.href = '/login'

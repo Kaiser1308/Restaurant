@@ -1,0 +1,14 @@
+{
+  "management": "Menu Management",
+  "category": {
+    "create": "Create Category",
+    "createPlaceholder": "Category name"
+  },
+  "menuItem": {
+    "create": "Create Item",
+    "createPlaceholder": "Item name",
+    "noImage": "No image",
+    "imageUploadError": "Image must be JPG, PNG, or WebP and 2 MB or smaller.",
+    "deleteImage": "Delete image"
+  }
+}

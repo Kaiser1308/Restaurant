@@ -1,0 +1,41 @@
+{
+  "title": "Hóa đơn",
+  "preview": {
+    "title": "Tạm tính",
+    "orderNumber": "Đơn hàng #{{id}}",
+    "totalAmount": "Tổng tiền"
+  },
+  "actions": {
+    "pay": "Thanh toán {{type}}",
+    "confirmPayment": "Xác nhận đã nhận tiền?",
+    "confirmPaymentDescription": "Sau khi xác nhận, đơn hàng sẽ đóng và bàn {{tableName}} sẽ chuyển về Sẵn sàng.",
+    "void": "Void hóa đơn",
+    "voidWithNumber": "Void hóa đơn {{billNumber}}",
+    "voidReason": "Lý do void",
+    "confirmVoid": "Xác nhận void",
+    "voidPlaceholder": "Nhập lý do void bill"
+  },
+  "payment": {
+    "cash": "Tiền mặt",
+    "qr": "QR",
+    "bankTransfer": "Chuyển khoản"
+  },
+  "status": {
+    "paid": "Đã thanh toán",
+    "voided": "Đã void"
+  },
+  "list": {
+    "all": "Tất cả"
+  },
+  "filter": {
+    "date": "Ngày"
+  },
+  "loading": {
+    "preview": "Đang tải hóa đơn...",
+    "detail": "Đang tải hóa đơn..."
+  },
+  "errors": {
+    "paymentFailed": "Thanh toán thất bại. Vui lòng kiểm tra lại đơn hàng.",
+    "voidFailed": "Void hóa đơn thất bại. Kiểm tra quyền hoặc trạng thái hóa đơn."
+  }
+}

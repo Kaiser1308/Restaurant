@@ -1,0 +1,15 @@
+{
+  "title": "Reports",
+  "label": "Reports",
+  "quick": "Quick Reports",
+  "filter": {
+    "date": "Filter by Date",
+    "datePlaceholder": "Date"
+  },
+  "actions": {
+    "export": "Export Report"
+  },
+  "placeholder": {
+    "noData": "No data"
+  }
+}

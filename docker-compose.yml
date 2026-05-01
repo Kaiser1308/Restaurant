@@ -9,10 +9,39 @@ services:
       POSTGRES_DB: restaurant_db
       POSTGRES_USER: restaurant_user
       POSTGRES_PASSWORD: restaurant_pass
+      TZ: UTC
+    command: ["postgres", "-c", "timezone=UTC"]
     ports:
       - "5432:5432"
     volumes:
       - restaurant_postgres_data:/var/lib/postgresql/data
 
+  minio:
+    image: minio/minio:latest
+    container_name: restaurant_minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: restaurant_minio
+      MINIO_ROOT_PASSWORD: restaurant_minio_password
+    command: ["server", "/data", "--console-address", ":9001"]
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - restaurant_minio_data:/data
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: restaurant_minio_init
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 restaurant_minio restaurant_minio_password; do sleep 2; done;
+      mc mb --ignore-existing local/restaurant-images;
+      mc anonymous set none local/restaurant-images;
+      "
+
 volumes:
   restaurant_postgres_data:
+  restaurant_minio_data:

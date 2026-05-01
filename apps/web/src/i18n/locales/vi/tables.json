@@ -1,0 +1,10 @@
+{
+  "title": "Bàn",
+  "management": "Quản lý bàn",
+  "placeholder": {
+    "tableName": "Tên bàn"
+  },
+  "errors": {
+    "noActiveOrder": "Bàn này không có đơn hàng đang hoạt động."
+  }
+}

@@ -7,7 +7,7 @@ public sealed class PermissionService : IPermissionService
 {
     public bool CanVoidBill(UserRole userRole)
     {
-        return RoleAccess.IsAtLeast(userRole, UserRole.Cashier);
+        return userRole == UserRole.Owner;
     }
 
     public bool CanManageMenu(UserRole userRole)

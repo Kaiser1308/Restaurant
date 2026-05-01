@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next'
+
 export default function LoadingSpinner() {
-  return <div>Loading...</div>
+  const { t } = useTranslation('common')
+  return <div>{t('loading')}</div>
 }

@@ -1,0 +1,14 @@
+{
+  "management": "Quản lý thực đơn",
+  "category": {
+    "create": "Tạo danh mục",
+    "createPlaceholder": "Tên danh mục"
+  },
+  "menuItem": {
+    "create": "Tạo món",
+    "createPlaceholder": "Tên món",
+    "noImage": "Chưa có ảnh",
+    "imageUploadError": "Ảnh phải là JPG, PNG hoặc WebP và tối đa 2 MB.",
+    "deleteImage": "Xóa ảnh"
+  }
+}

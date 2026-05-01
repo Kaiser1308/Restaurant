@@ -1,0 +1,72 @@
+{
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "create": "Create",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "clear": "Clear",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "labels": {
+    "username": "Username",
+    "password": "Password",
+    "email": "Email",
+    "name": "Name",
+    "description": "Description",
+    "price": "Price",
+    "quantity": "Quantity",
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "reason": "Reason",
+    "quantityTimes": "×{{qty}}"
+  },
+  "status": {
+    "available": "Available",
+    "occupied": "Occupied",
+    "needsPayment": "Needs Payment",
+    "reserved": "Reserved",
+    "closed": "Closed",
+    "processing": "Processing",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "pending": "Pending",
+    "sentToKitchen": "Sent to Kitchen",
+    "paid": "Paid",
+    "voided": "Voided"
+  },
+  "nav": {
+    "tables": "Tables",
+    "orders": "Orders",
+    "profile": "Profile",
+    "tableMap": "Table Map",
+    "bills": "Bills",
+    "quickReports": "Quick Reports",
+    "dashboard": "Dashboard",
+    "kitchen": "Kitchen",
+    "menu": "Menu",
+    "auditLogs": "Audit Logs",
+    "staff": "Staff",
+    "reports": "Reports"
+  },
+  "kitchen": {
+    "title": "Kitchen Display"
+  },
+  "brand": "Restaurant POS",
+  "comingSoon": "This section is not implemented yet. Use the sidebar to continue.",
+  "loading": "Loading...",
+  "sessionExpired": "Session expired. Please log in again.",
+  "roles": {
+    "Owner": "Owner",
+    "Manager": "Manager",
+    "Cashier": "Cashier",
+    "Waiter": "Waiter"
+  },
+  "accessibility": {
+    "changeLanguage": "Change language",
+    "closeNotification": "Close notification"
+  }
+}

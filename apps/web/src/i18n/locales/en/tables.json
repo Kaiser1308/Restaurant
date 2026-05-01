@@ -1,0 +1,10 @@
+{
+  "title": "Tables",
+  "management": "Table Management",
+  "placeholder": {
+    "tableName": "Table name"
+  },
+  "errors": {
+    "noActiveOrder": "No active order for this table."
+  }
+}

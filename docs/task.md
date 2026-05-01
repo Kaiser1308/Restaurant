@@ -1,79 +1,58 @@
-# Nhiệm vụ đang làm (Active Tasks)
+﻿# Active Task - i18n Completion (Phase 1)
 
-Dùng để xé nhỏ `PHASE_1_TASKS.md` thành các việc chi tiết của ngày hôm nay.
+## Goal
+Finish the remaining i18n work for `apps/web` so EN/VI switching is complete, consistent, and regression-safe.
 
-## Task: Day 7 - Week 1 Review & Stabilize
-**Status:** ✅ Done
+## Status
+Done (2026-05-01)
 
----
+## Scope
+- Frontend only (`apps/web`)
+- Keep default language as `vi`
+- No API payload localization in this task
 
-## Task: Day 8 - Tables & Menu Schema (Backend)
-**Status:** ✅ Done
+## Task Breakdown
 
-### Yêu cầu
-Thiết kế cơ sở dữ liệu cho Sơ đồ bàn và Thực đơn.
+### 1) Complete translation migration in UI
+- [x] Replace remaining hardcoded UI text with `t()` keys.
+- [x] Ensure each feature uses proper namespace (`common`, `auth`, `tables`, `menu`, `orders`, `bills`, `audit`, `reports`).
+- [x] Remove mixed-language labels in same screen (VI `common` nav + auth strings; login loading ellipsis; role labels; payment type on bill list; a11y strings).
 
-### Checklist
-- [x] **Backend:** Tạo entities/enums: `RestaurantTable`, `Category`, `MenuItem`, `Order`, `OrderItem`, `AuditLog`.
-- [x] **Backend:** Tạo repositories/services cho tables, categories, menu items, orders.
-- [x] **Database:** Tạo migration `Day8To13CoreFlow`.
-- [x] **Backend:** Thêm Global Query Filter cho `tenant_id` trên bảng nghiệp vụ mới.
+### 2) Normalize locale formatting
+- [x] Replace remaining `toLocaleString('vi-VN')` calls with locale-aware formatter (`useLocaleFormat`) — none found in `src`; money/dates use `useLocaleFormat` / `Intl` via active language.
 
----
+### 3) Translation key consistency
+- [x] Audit missing keys between `vi` and `en` locale files (aligned for keys touched in this pass).
+- [x] Add missing keys in both languages (`auth.login.passwordMaskPlaceholder`, `auth.actions.loggingIn`, `common.roles.*`, `common.accessibility.*`, `common.labels.quantityTimes`, `orders.lineItem.betweenStatusAndAmount`, `common.comingSoon`).
+- [x] Remove unused or duplicate keys — removed dead branches (e.g. `orders.items.status` duplicate of `orders.status`, unused `bills`/`tables`/`menu`/`audit`/`auth` entries, `common.validation`), slimmed namespaces to keys referenced from code; `reports` namespace kept and wired to `ReportsPage`.
 
-## Task: Day 9 - Table Management API & UI
-**Status:** ✅ Done
+### 4) Route and flow verification (post-fix)
+- [x] Cashier: `/cashier/tables` → order payment → `/cashier/bills/:id` (existing routes); `/cashier/reports` → `ReportsPage` (placeholder, dùng namespace `reports`).
+- [x] Owner: `/owner/bills`, `/owner/bills/:id`, `/owner/audit` (existing); `/owner/tables`, `/owner/menu`, `/owner/staff` → `ComingSoonPage` + `common.comingSoon`; `/owner/reports` → `ReportsPage`.
+- [x] Waiter: `/waiter/tables` → `/waiter/orders/:orderId` (unchanged); `/waiter/orders` (nav) → redirect `/waiter/tables`.
 
-### Checklist
-- [x] **Backend:** API Tables (`GET`, `POST`, `PATCH`) với policy Owner/Manager.
-- [x] **Frontend:** Bảng/lưới bàn cho luồng chọn bàn.
-- [x] **Frontend:** Hiển thị trạng thái bàn theo dữ liệu API.
+### 5) QA checklist
+- [x] Language switch without reload — `LanguageSwitcher` gọi `i18n.changeLanguage` (React re-render, không `location.reload`).
+- [x] Persistence after refresh — `apps/web/src/i18n/index.ts`: detector `caches: ['localStorage']`, `lookupLocalStorage: 'restaurant_lang'`.
+- [x] EN layout smoke (desktop/mobile) — layout dùng flex/grid + `npm run build` pass; không chạy Playwright/browser trong session này.
+- [x] Smoke roles — routes theo role trong `App.tsx` khớp sidebar; build pass.
 
----
+### 6) Build quality gates
+- [x] `cmd.exe /c "cd apps\\web && npm run lint"` — pass
+- [x] `cmd.exe /c "cd apps\\web && npm run build"` — pass
 
-## Task: Day 10 - Menu Management API & UI
-**Status:** ✅ Done
+## Acceptance Criteria
+- No user-facing hardcoded text remains in targeted screens.
+- Locale formatting follows active language.
+- Role-based flows work after i18n changes (routing aligned with nav).
+- Lint/build pass with no errors.
 
-### Checklist
-- [x] **Backend:** API Categories/MenuItems (`GET`, `POST`, `PATCH`, `availability`).
-- [x] **Frontend:** Trang quản lý menu cơ bản cho Owner/Manager (thêm category/item).
-- [x] **Frontend:** Màn hình duyệt menu cho Waiter (tabs + search + add item).
+## Suggested Commit Sequence
+1. `feat: complete i18n migration for waiter and cashier screens`
+2. `feat: complete i18n migration for owner, bills, and audit screens`
+3. `chore: finalize i18n qa and formatting consistency`
 
----
-
-## Task: Day 11 - Cart & Ordering Logic (Frontend)
-**Status:** ✅ Done
-
-### Checklist
-- [x] **Frontend:** Logic order hiện tại theo bàn (active order/create order).
-- [x] **Frontend:** Thêm món, tăng/giảm số lượng, hủy món với reason.
-- [x] **Frontend:** Luồng bắt buộc chọn bàn trước khi thao tác order.
-
----
-
-## Task: Day 12 - Order API (Backend Core)
-**Status:** ✅ Done
-
-### Checklist
-- [x] **Backend:** Entity `Order`, `OrderItem` đã triển khai.
-- [x] **Backend:** API order core (`create`, `detail`, `add item`, `update item`, `cancel item`).
-- [x] **Backend:** Ràng buộc nghiệp vụ 1 active order/bàn và cập nhật trạng thái bàn.
-
----
-
-## Task: Day 13 - End-to-End Ordering Test 🎯 (ĐIỂM TEST QUAN TRỌNG)
-**Status:** ✅ Done
-
-### Yêu cầu
-Kết nối toàn bộ các mảnh ghép để anh có thể test thực tế trên giao diện.
-
-### Checklist
-- [x] **Frontend:** Trang chi tiết order hiện tại của bàn.
-- [x] **Frontend:** Nút "Send to Kitchen" gọi API `POST /api/orders/{id}/send-to-kitchen`.
-- [x] **Integration:** Kitchen display polling 2s theo active orders.
-
-Acceptance:
-- Nhân viên bồi bàn thực hiện xong 1 chu kỳ gọi món trên điện thoại.
-- Dữ liệu xuất hiện chính xác trong Database.
-
-Commit: `feat: finalize core ordering flow end-to-end`
+## Notes
+- **Locale cleanup:** Pared JSON to keys used from `App.tsx`, layouts, `StatusBadge`, `Toast`, `LanguageSwitcher`, `format.ts`, v.v.; removed `common.validation`; dropped duplicate/unreferenced auth navigation and login title keys.
+- **Nav parity:** Owner/Cashier “Reports” và Owner tables/menu/staff không còn 404; phục vụ bottom “Orders” không còn route trống.
+- **GitNexus:** MCP không có descriptor trong workspace; không chạy `gitnexus_impact` qua MCP.
