@@ -6,6 +6,9 @@
   },
   "menuItem": {
     "create": "Create Item",
-    "createPlaceholder": "Item name"
+    "createPlaceholder": "Item name",
+    "noImage": "No image",
+    "imageUploadError": "Image must be JPG, PNG, or WebP and 2 MB or smaller.",
+    "deleteImage": "Delete image"
   }
 }

@@ -264,16 +264,34 @@ function WaiterOrderPage() {
             ))}
           </div>
           {menuItems.map(item => (
-            <div key={item.id} className="rounded border p-3">
-              <p className="font-semibold">{item.name}</p>
-              <p className="text-sm">{formatMoney(item.price)}</p>
-              <Button
-                size="sm"
-                disabled={!item.isAvailable || addItem.isPending}
-                onClick={() => addItem.mutate(item.id)}
-              >
-                {t('actions.addItem')}
-              </Button>
+            <div key={item.id} className="grid grid-cols-[96px_1fr] gap-3 rounded border p-3">
+              <div className="aspect-square overflow-hidden rounded-md bg-stone-100">
+                {item.imageUrl ? (
+                  <img
+                    src={item.imageUrl}
+                    alt={item.name}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-xs text-stone-500">
+                    {t('menuItem.noImage', { ns: 'menu' })}
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2">
+                <div>
+                  <p className="font-semibold">{item.name}</p>
+                  <p className="text-sm">{formatMoney(item.price)}</p>
+                </div>
+                <Button
+                  size="sm"
+                  disabled={!item.isAvailable || addItem.isPending}
+                  onClick={() => addItem.mutate(item.id)}
+                >
+                  {t('actions.addItem')}
+                </Button>
+              </div>
             </div>
           ))}
         </div>
@@ -587,8 +605,15 @@ function OwnerDashboardPage() {
   const [categoryName, setCategoryName] = useState('')
   const [menuName, setMenuName] = useState('')
   const [menuPrice, setMenuPrice] = useState('50000')
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [menuFormError, setMenuFormError] = useState('')
   const { data: categories = [] } = useCategories()
   const { t } = useTranslation(['tables', 'menu', 'common'])
+
+  function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setSelectedImage(event.target.files?.[0] ?? null)
+    setMenuFormError('')
+  }
 
   const createTable = useMutation({
     mutationFn: () => tablesApi.create(tableName.trim()),
@@ -605,15 +630,29 @@ function OwnerDashboardPage() {
     },
   })
   const createMenuItem = useMutation({
-    mutationFn: () => menuApi.createMenuItem({
-      categoryId: categories[0]?.id || '',
-      name: menuName.trim(),
-      price: Number(menuPrice),
-      isAvailable: true,
-    }),
+    mutationFn: async () => {
+      const savedItem = await menuApi.createMenuItem({
+        categoryId: categories[0]?.id || '',
+        name: menuName.trim(),
+        price: Number(menuPrice),
+        isAvailable: true,
+      })
+
+      if (selectedImage) {
+        await menuApi.uploadMenuItemImage(savedItem.id, selectedImage)
+      }
+
+      return savedItem
+    },
     onSuccess: () => {
       setMenuName('')
+      setMenuPrice('50000')
+      setSelectedImage(null)
+      setMenuFormError('')
       queryClient.invalidateQueries({ queryKey: ['menuItems'] })
+    },
+    onError: () => {
+      setMenuFormError(t('menu:menuItem.imageUploadError'))
     },
   })
 
@@ -638,8 +677,15 @@ function OwnerDashboardPage() {
         <div className="flex gap-2">
           <Input value={menuName} onChange={(e) => setMenuName(e.target.value)} placeholder={t('menu:menuItem.createPlaceholder')} />
           <Input value={menuPrice} onChange={(e) => setMenuPrice(e.target.value)} placeholder={t('common:labels.price')} />
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handleImageChange}
+            className="rounded-md border px-3 py-2 text-sm"
+          />
           <Button onClick={() => createMenuItem.mutate()} disabled={!menuName.trim() || categories.length === 0}>{t('menu:menuItem.create')}</Button>
         </div>
+        {menuFormError ? <p className="mt-2 text-sm text-red-600">{menuFormError}</p> : null}
       </Card>
     </div>
   )
