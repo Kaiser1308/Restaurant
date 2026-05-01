@@ -11,6 +11,9 @@ using Serilog;
 using Restaurant.Api.Domain.Enums;
 using Restaurant.Api.Infrastructure.Auth;
 using Restaurant.Api.Infrastructure.Persistence;
+using Microsoft.Extensions.Options;
+using Minio;
+using Restaurant.Api.Infrastructure.Storage;
 using Restaurant.Api.Middleware;
 using Restaurant.Api.Repositories;
 using Restaurant.Api.Services;
@@ -110,6 +113,22 @@ builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<ITenantContext, TenantContext>();
 builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
+builder.Services.Configure<StorageOptions>(builder.Configuration.GetSection("Storage"));
+builder.Services.AddSingleton<IMinioClient>(serviceProvider =>
+{
+    var options = serviceProvider.GetRequiredService<IOptions<StorageOptions>>().Value;
+    var client = new MinioClient()
+        .WithEndpoint(options.Endpoint)
+        .WithCredentials(options.AccessKey, options.SecretKey);
+
+    if (options.UseSsl)
+    {
+        client = client.WithSSL();
+    }
+
+    return client.Build();
+});
+builder.Services.AddSingleton<IObjectStorageService, MinioObjectStorageService>();
 
 var app = builder.Build();
 
