@@ -1,0 +1,15 @@
+{
+  "title": "Báo cáo",
+  "label": "Báo cáo",
+  "quick": "Báo cáo nhanh",
+  "filter": {
+    "date": "Lọc theo ngày",
+    "datePlaceholder": "Ngày"
+  },
+  "actions": {
+    "export": "Xuất báo cáo"
+  },
+  "placeholder": {
+    "noData": "Không có dữ liệu"
+  }
+}

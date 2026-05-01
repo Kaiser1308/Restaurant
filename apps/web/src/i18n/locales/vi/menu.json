@@ -1,0 +1,11 @@
+{
+  "management": "Quản lý thực đơn",
+  "category": {
+    "create": "Tạo danh mục",
+    "createPlaceholder": "Tên danh mục"
+  },
+  "menuItem": {
+    "create": "Tạo món",
+    "createPlaceholder": "Tên món"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "title": "Bills",
+  "preview": {
+    "title": "Subtotal",
+    "orderNumber": "Order #{{id}}",
+    "totalAmount": "Total Amount"
+  },
+  "actions": {
+    "pay": "Pay {{type}}",
+    "confirmPayment": "Confirm payment received?",
+    "confirmPaymentDescription": "After confirm, the order closes and table {{tableName}} returns to Available.",
+    "void": "Void Bill",
+    "voidWithNumber": "Void Bill {{billNumber}}",
+    "voidReason": "Void Reason",
+    "confirmVoid": "Confirm Void",
+    "voidPlaceholder": "Enter void reason"
+  },
+  "payment": {
+    "cash": "Cash",
+    "qr": "QR",
+    "bankTransfer": "Bank Transfer"
+  },
+  "status": {
+    "paid": "Paid",
+    "voided": "Voided"
+  },
+  "list": {
+    "all": "All"
+  },
+  "filter": {
+    "date": "Date"
+  },
+  "loading": {
+    "preview": "Loading bill preview...",
+    "detail": "Loading bill..."
+  },
+  "errors": {
+    "paymentFailed": "Payment failed. Please verify order and retry.",
+    "voidFailed": "Void bill failed. Check permission or bill status."
+  }
+}

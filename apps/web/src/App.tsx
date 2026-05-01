@@ -96,7 +96,7 @@ function LoginPage() {
             <Input
               label={t('labels.password')}
               type="password"
-              placeholder="••••••••"
+              placeholder={t('login.passwordMaskPlaceholder')}
               value={form.password}
               onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
             />
@@ -104,7 +104,7 @@ function LoginPage() {
 
           <div className="flex flex-col gap-3 pt-2">
             <Button className="w-full" size="lg" type="submit" disabled={isLoginLoading}>
-              {isLoginLoading ? t('actions.login') + '...' : t('actions.login')}
+              {isLoginLoading ? t('actions.loggingIn') : t('actions.login')}
             </Button>
             <div className="flex gap-2">
               <Button variant="secondary" className="flex-1">{t('login.actions.qrScan')}</Button>
@@ -134,6 +134,7 @@ function WaiterTablesPage() {
   const navigate = useNavigate()
   const { data: tables = [] } = useTables()
   const createOrderMutation = useCreateOrder()
+  const { t } = useTranslation('tables')
 
   const openTable = async (table: RestaurantTable) => {
     try {
@@ -146,13 +147,16 @@ function WaiterTablesPage() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-      {tables.map((table) => (
-        <button key={table.id} className="rounded-lg border p-4 text-left" onClick={() => openTable(table)}>
-          <p className="font-semibold">{table.name}</p>
-          <p className="text-sm text-[var(--color-on-surface-variant)]">{table.status}</p>
-        </button>
-      ))}
+    <div className="space-y-4">
+      <h2 className="text-xl font-bold">{t('title')}</h2>
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        {tables.map((table) => (
+          <button key={table.id} className="rounded-lg border p-4 text-left" onClick={() => openTable(table)}>
+            <p className="font-semibold">{table.name}</p>
+            <StatusBadge status={table.status} />
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
@@ -197,17 +201,31 @@ function WaiterOrderPage() {
       <Card>
         <div className="space-y-3">
           <p className="text-xl font-bold">{order.tableName}</p>
-          <p className="text-sm">Status: {order.status}</p>
+          <p className="text-sm">{t('statusLabel')}: <StatusBadge status={order.status} /></p>
           {order.items.map(item => (
             <div key={item.id} className="rounded border p-3">
               <p className="font-semibold">{item.itemNameSnapshot}</p>
-              <p className="text-sm">{item.status} - {formatMoney(item.lineTotal)}</p>
+              <p className="text-sm">
+                <StatusBadge status={item.status} /> {t('lineItem.betweenStatusAndAmount')} {formatMoney(item.lineTotal)}
+              </p>
               {item.status === 'Pending' ? (
                 <div className="mt-2 space-y-2">
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={() => updateItem.mutate({ itemId: item.id, quantity: Math.max(1, item.quantity - 1) })}>-</Button>
+                    <Button
+                      size="sm"
+                      aria-label={t('actions.decrease')}
+                      onClick={() => updateItem.mutate({ itemId: item.id, quantity: Math.max(1, item.quantity - 1) })}
+                    >
+                      −
+                    </Button>
                     <span className="px-2 py-2">{item.quantity}</span>
-                    <Button size="sm" onClick={() => updateItem.mutate({ itemId: item.id, quantity: item.quantity + 1 })}>+</Button>
+                    <Button
+                      size="sm"
+                      aria-label={t('actions.increase')}
+                      onClick={() => updateItem.mutate({ itemId: item.id, quantity: item.quantity + 1 })}
+                    >
+                      +
+                    </Button>
                   </div>
                   <Input
                     placeholder={t('actions.reasonPlaceholder')}
@@ -275,7 +293,7 @@ function CashierTablesPage() {
       const active = await tablesApi.getActiveOrder(table.id)
       navigate(`/cashier/orders/${active.id}/payment`)
     } catch {
-      setToastMessage('No active order for this table.')
+      setToastMessage(t('errors.noActiveOrder'))
     }
   }
 
@@ -291,7 +309,7 @@ function CashierTablesPage() {
             onClick={() => openPayment(table)}
           >
             <p className="font-semibold">{table.name}</p>
-            <p className="text-sm text-[var(--color-on-surface-variant)]">{table.status}</p>
+            <StatusBadge status={table.status} />
           </button>
         ))}
       </div>
@@ -310,6 +328,14 @@ function CashierPaymentPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
   const { formatMoney } = useLocaleFormat()
+  const { t } = useTranslation('bills')
+  const { t: tCommon } = useTranslation('common')
+
+  const paymentTypeKey: Record<PaymentType, string> = {
+    Cash: 'payment.cash',
+    Qr: 'payment.qr',
+    BankTransfer: 'payment.bankTransfer',
+  }
 
   const payOrder = useMutation({
     mutationFn: () => billsApi.payOrder(orderId, paymentType),
@@ -318,11 +344,11 @@ function CashierPaymentPage() {
       await queryClient.invalidateQueries({ queryKey: ['bills'] })
       navigate(`/cashier/bills/${result.billId}`)
     },
-    onError: () => setToastMessage('Payment failed. Please verify order and retry.'),
+    onError: () => setToastMessage(t('errors.paymentFailed')),
   })
 
   if (!order || !preview) {
-    return <p>Loading bill preview...</p>
+    return <p>{t('loading.preview')}</p>
   }
 
   return (
@@ -332,7 +358,7 @@ function CashierPaymentPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xl font-bold">{preview.tableName}</p>
-              <p className="text-sm text-[var(--color-on-surface-variant)]">Order #{order.id.slice(0, 8)}</p>
+              <p className="text-sm text-[var(--color-on-surface-variant)]">{t('preview.orderNumber', { id: order.id.slice(0, 8) })}</p>
             </div>
             <StatusBadge status={order.status} />
           </div>
@@ -340,7 +366,9 @@ function CashierPaymentPage() {
             <div key={item.id} className="flex justify-between rounded border p-3">
               <div>
                 <p className="font-semibold">{item.itemNameSnapshot}</p>
-                <p className="text-sm text-[var(--color-on-surface-variant)]">x{item.quantity}</p>
+                <p className="text-sm text-[var(--color-on-surface-variant)]">
+                  {tCommon('labels.quantityTimes', { qty: item.quantity })}
+                </p>
               </div>
               <p className="font-semibold">{formatMoney(item.lineTotal)}</p>
             </div>
@@ -350,7 +378,7 @@ function CashierPaymentPage() {
 
       <Card>
         <div className="space-y-4">
-          <p className="text-lg font-bold">Subtotal</p>
+          <p className="text-lg font-bold">{t('preview.title')}</p>
           <p className="text-3xl font-extrabold">{formatMoney(preview.totalAmount)}</p>
           <div className="space-y-2">
             {(['Cash', 'Qr', 'BankTransfer'] as PaymentType[]).map(type => (
@@ -360,26 +388,26 @@ function CashierPaymentPage() {
                 variant={paymentType === type ? 'primary' : 'secondary'}
                 onClick={() => setPaymentType(type)}
               >
-                {type}
+                {t(paymentTypeKey[type])}
               </Button>
             ))}
           </div>
           <Button className="w-full" disabled={payOrder.isPending} onClick={() => setConfirmOpen(true)}>
-            Confirm payment
+            {t('actions.confirmPayment')}
           </Button>
         </div>
       </Card>
 
       <Modal open={confirmOpen}>
         <div className="space-y-4">
-          <p className="text-lg font-bold">Confirm payment received?</p>
+          <p className="text-lg font-bold">{t('actions.confirmPayment')}</p>
           <p className="text-sm text-[var(--color-on-surface-variant)]">
-            After confirm, the order closes and table {preview.tableName} returns to Available.
+            {t('actions.confirmPaymentDescription', { tableName: preview.tableName })}
           </p>
           <div className="flex gap-2">
-            <Button variant="secondary" className="flex-1" onClick={() => setConfirmOpen(false)}>Cancel</Button>
+            <Button variant="secondary" className="flex-1" onClick={() => setConfirmOpen(false)}>{t('common:actions.cancel')}</Button>
             <Button className="flex-1" disabled={payOrder.isPending} onClick={() => payOrder.mutate()}>
-              Pay {paymentType}
+              {t('actions.pay', { type: t(paymentTypeKey[paymentType]) })}
             </Button>
           </div>
         </div>
@@ -389,21 +417,34 @@ function CashierPaymentPage() {
   )
 }
 
+const billPaymentTypeKeys: Record<string, 'payment.cash' | 'payment.qr' | 'payment.bankTransfer'> = {
+  Cash: 'payment.cash',
+  Qr: 'payment.qr',
+  BankTransfer: 'payment.bankTransfer',
+}
+
 function BillsListPage({ basePath }: { basePath: '/cashier' | '/owner' }) {
   const navigate = useNavigate()
   const { formatMoney, formatDateTime } = useLocaleFormat()
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10))
   const [status, setStatus] = useState<BillStatus | ''>('')
   const { data: bills = [] } = useBills(date, status || undefined)
+  const { t } = useTranslation('bills')
+
+  const paymentTypeLabel = (raw: string) => {
+    const key = billPaymentTypeKeys[raw]
+    return key ? t(key) : raw
+  }
 
   return (
     <div className="space-y-4">
+      <h2 className="text-xl font-bold">{t('title')}</h2>
       <div className="flex flex-wrap items-end gap-2">
-        <Input label="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        <Input label={t('filter.date')} type="date" value={date} onChange={(e) => setDate(e.target.value)} />
         <div className="flex gap-2">
           {(['', 'Paid', 'Voided'] as Array<BillStatus | ''>).map(value => (
             <Button key={value || 'all'} variant={status === value ? 'primary' : 'secondary'} onClick={() => setStatus(value)}>
-              {value || 'All'}
+              {value ? (value === 'Paid' ? t('status.paid') : t('status.voided')) : t('list.all')}
             </Button>
           ))}
         </div>
@@ -417,7 +458,9 @@ function BillsListPage({ basePath }: { basePath: '/cashier' | '/owner' }) {
           >
             <div>
               <p className="font-semibold">{bill.billNumber} - {bill.tableName}</p>
-              <p className="text-sm text-[var(--color-on-surface-variant)]">{bill.paymentType} · {formatDateTime(bill.paidAt)}</p>
+              <p className="text-sm text-[var(--color-on-surface-variant)]">
+                {paymentTypeLabel(bill.paymentType)} · {formatDateTime(bill.paidAt)}
+              </p>
             </div>
             <div className="text-right">
               <p className="font-bold">{formatMoney(bill.totalAmount)}</p>
@@ -438,6 +481,8 @@ function BillDetailPage({ canVoid }: { canVoid: boolean }) {
   const [reason, setReason] = useState('')
   const [toastMessage, setToastMessage] = useState('')
   const { formatMoney, formatDateTime } = useLocaleFormat()
+  const { t } = useTranslation('bills')
+  const { t: tCommon } = useTranslation('common')
 
   const voidBill = useMutation({
     mutationFn: () => billsApi.void(billId, reason.trim()),
@@ -448,11 +493,11 @@ function BillDetailPage({ canVoid }: { canVoid: boolean }) {
       await queryClient.invalidateQueries({ queryKey: ['bills'] })
       await queryClient.invalidateQueries({ queryKey: ['auditLogs'] })
     },
-    onError: () => setToastMessage('Void bill failed. Check permission or bill status.'),
+    onError: () => setToastMessage(t('errors.voidFailed')),
   })
 
   if (!bill) {
-    return <p>Loading bill...</p>
+    return <p>{t('loading.detail')}</p>
   }
 
   return (
@@ -460,35 +505,38 @@ function BillDetailPage({ canVoid }: { canVoid: boolean }) {
       <div className="space-y-4">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-xl font-bold">Bill {bill.billNumber}</p>
+            <p className="text-xl font-bold">{t('title')} {bill.billNumber}</p>
             <p className="text-sm text-[var(--color-on-surface-variant)]">{bill.tableName} · {formatDateTime(bill.paidAt)}</p>
           </div>
           <StatusBadge status={bill.status} />
         </div>
         {bill.items.map(item => (
           <div key={item.id} className="flex justify-between rounded border p-3">
-            <p>{item.itemNameSnapshot} x {item.quantity}</p>
+            <p>
+              {item.itemNameSnapshot}{' '}
+              {tCommon('labels.quantityTimes', { qty: item.quantity })}
+            </p>
             <p className="font-semibold">{formatMoney(item.lineTotal)}</p>
           </div>
         ))}
         <div className="flex justify-between border-t pt-3 text-lg font-bold">
-          <span>Total</span>
+          <span>{t('preview.totalAmount')}</span>
           <span>{formatMoney(bill.totalAmount)}</span>
         </div>
-        {bill.voidReason ? <p className="text-sm text-[var(--color-error)]">Void reason: {bill.voidReason}</p> : null}
+        {bill.voidReason ? <p className="text-sm text-[var(--color-error)]">{t('actions.voidReason')}: {bill.voidReason}</p> : null}
         {canVoid && bill.status === 'Paid' ? (
-          <Button variant="danger" onClick={() => setVoidOpen(true)}>Void bill</Button>
+          <Button variant="danger" onClick={() => setVoidOpen(true)}>{t('actions.void')}</Button>
         ) : null}
       </div>
 
       <Modal open={voidOpen}>
         <div className="space-y-4">
-          <p className="text-lg font-bold">Void bill {bill.billNumber}</p>
-          <Input label="Reason" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Enter void reason" />
+          <p className="text-lg font-bold">{t('actions.voidWithNumber', { billNumber: bill.billNumber })}</p>
+          <Input label={t('actions.voidReason')} value={reason} onChange={(e) => setReason(e.target.value)} placeholder={t('actions.voidPlaceholder')} />
           <div className="flex gap-2">
-            <Button variant="secondary" className="flex-1" onClick={() => setVoidOpen(false)}>Cancel</Button>
+            <Button variant="secondary" className="flex-1" onClick={() => setVoidOpen(false)}>{t('common:actions.cancel')}</Button>
             <Button variant="danger" className="flex-1" disabled={!reason.trim() || voidBill.isPending} onClick={() => voidBill.mutate()}>
-              Confirm void
+              {t('actions.confirmVoid')}
             </Button>
           </div>
         </div>
@@ -503,12 +551,14 @@ function AuditLogsPage() {
   const { formatDateTime } = useLocaleFormat()
   const { data } = useAuditLogs({ action: action || undefined, page: 1, pageSize: 50 })
   const logs = data?.items ?? []
+  const { t } = useTranslation('audit')
 
   return (
     <div className="space-y-4">
+      <h2 className="text-xl font-bold">{t('title')}</h2>
       <div className="flex items-end gap-2">
-        <Input label="Action" value={action} onChange={(e) => setAction(e.target.value)} placeholder="pay_bill, void_bill..." />
-        <Button variant="secondary" onClick={() => setAction('')}>Clear</Button>
+        <Input label={t('log.action')} value={action} onChange={(e) => setAction(e.target.value)} placeholder={t('placeholder.actionFilter')} />
+        <Button variant="secondary" onClick={() => setAction('')}>{t('actions.clearFilter')}</Button>
       </div>
       <div className="space-y-2">
         {logs.map(log => (
@@ -517,9 +567,9 @@ function AuditLogsPage() {
               <div>
                 <p className="font-semibold">{log.action}</p>
                 <p className="text-sm text-[var(--color-on-surface-variant)]">
-                  {log.entityType} · {log.entityId} · {log.userName || 'System'}
+                  {log.entityType} · {log.entityId} · {log.userName || t('log.systemUser')}
                 </p>
-                {log.reason ? <p className="mt-1 text-sm">Reason: {log.reason}</p> : null}
+                {log.reason ? <p className="mt-1 text-sm">{t('log.reason')}: {log.reason}</p> : null}
               </div>
               <p className="text-sm text-[var(--color-on-surface-variant)]">{formatDateTime(log.createdAt)}</p>
             </div>
@@ -576,7 +626,7 @@ function OwnerDashboardPage() {
           <Button onClick={() => createTable.mutate()} disabled={!tableName.trim()}>{t('common:actions.create')}</Button>
         </div>
         <div className="mt-3 space-y-2">
-          {tables.map(tbl => <p key={tbl.id}>{tbl.name} - {tbl.status}</p>)}
+          {tables.map(tbl => <p key={tbl.id}>{tbl.name} - <StatusBadge status={tbl.status} /></p>)}
         </div>
       </Card>
       <Card>
@@ -595,6 +645,30 @@ function OwnerDashboardPage() {
   )
 }
 
+function ComingSoonPage({ navKey }: { navKey: 'nav.tables' | 'nav.menu' | 'nav.staff' }) {
+  const { t } = useTranslation('common')
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-bold">{t(navKey)}</h2>
+      <Card>
+        <p className="text-sm text-[var(--color-on-surface-variant)]">{t('comingSoon')}</p>
+      </Card>
+    </div>
+  )
+}
+
+function ReportsPage() {
+  const { t } = useTranslation('reports')
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-bold">{t('title')}</h2>
+      <Card>
+        <p className="text-sm text-[var(--color-on-surface-variant)]">{t('placeholder.noData')}</p>
+      </Card>
+    </div>
+  )
+}
+
 function KitchenPage() {
   const { data: orders = [] } = useKitchenOrders()
   const { t } = useTranslation('common')
@@ -603,9 +677,15 @@ function KitchenPage() {
       <h2 className="text-xl font-bold">{t('kitchen.title')}</h2>
       {(orders as Array<NonNullable<typeof orders[number]>>).map(order => (
         <Card key={order.id}>
-          <p className="font-semibold">{order.tableName} - {order.status}</p>
+          <p className="font-semibold">{order.tableName} - <StatusBadge status={order.status} /></p>
           {order.items.map(item => (
-            <p key={item.id}>{item.itemNameSnapshot} x {item.quantity} ({item.status})</p>
+            <p key={item.id} className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span>
+                {item.itemNameSnapshot}{' '}
+                {t('labels.quantityTimes', { qty: item.quantity })}
+              </span>
+              <StatusBadge status={item.status} />
+            </p>
           ))}
         </Card>
       ))}
@@ -635,6 +715,7 @@ function AppContent() {
                 <Routes>
                   <Route path="" element={<Navigate to="tables" replace />} />
                   <Route path="tables" element={<WaiterTablesPage />} />
+                  <Route path="orders" element={<Navigate to="/waiter/tables" replace />} />
                   <Route path="orders/:orderId" element={<WaiterOrderPage />} />
                 </Routes>
               </WaiterLayout>
@@ -653,6 +734,7 @@ function AppContent() {
                   <Route path="orders/:orderId/payment" element={<CashierPaymentPage />} />
                   <Route path="bills" element={<BillsListPage basePath="/cashier" />} />
                   <Route path="bills/:billId" element={<BillDetailPage canVoid={false} />} />
+                  <Route path="reports" element={<ReportsPage />} />
                 </Routes>
               </CashierLayout>
             }
@@ -671,6 +753,10 @@ function AppContent() {
                   <Route path="bills" element={<BillsListPage basePath="/owner" />} />
                   <Route path="bills/:billId" element={<BillDetailPage canVoid />} />
                   <Route path="audit" element={<AuditLogsPage />} />
+                  <Route path="tables" element={<ComingSoonPage navKey="nav.tables" />} />
+                  <Route path="menu" element={<ComingSoonPage navKey="nav.menu" />} />
+                  <Route path="staff" element={<ComingSoonPage navKey="nav.staff" />} />
+                  <Route path="reports" element={<ReportsPage />} />
                 </Routes>
               </OwnerLayout>
             }

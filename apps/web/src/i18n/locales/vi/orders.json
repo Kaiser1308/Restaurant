@@ -1,0 +1,31 @@
+{
+  "statusLabel": "Trạng thái",
+  "lineItem": {
+    "betweenStatusAndAmount": "·"
+  },
+  "items": {
+    "title": "Món đã đặt"
+  },
+  "actions": {
+    "create": "Tạo order",
+    "addItem": "Thêm món",
+    "increase": "Tăng số lượng",
+    "decrease": "Giảm số lượng",
+    "cancelItem": "Hủy món",
+    "sendToKitchen": "Gửi vào bếp",
+    "cancelReason": "Lý do hủy",
+    "reasonPlaceholder": "Lý do hủy"
+  },
+  "status": {
+    "pending": "Đang chờ",
+    "confirmed": "Đã xác nhận",
+    "cooking": "Đang nấu",
+    "ready": "Đã hoàn tất",
+    "cancelled": "Đã hủy",
+    "sentToKitchen": "Đã gửi bếp"
+  },
+  "loading": "Đang tải đơn hàng...",
+  "placeholder": {
+    "searchMenu": "Tìm kiếm menu..."
+  }
+}

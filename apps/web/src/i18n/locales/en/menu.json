@@ -1,0 +1,11 @@
+{
+  "management": "Menu Management",
+  "category": {
+    "create": "Create Category",
+    "createPlaceholder": "Category name"
+  },
+  "menuItem": {
+    "create": "Create Item",
+    "createPlaceholder": "Item name"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "actions": {
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "create": "Tạo mới",
+    "delete": "Xóa",
+    "edit": "Sửa",
+    "search": "Tìm kiếm",
+    "clear": "Xóa lọc",
+    "confirm": "Xác nhận",
+    "yes": "Có",
+    "no": "Không"
+  },
+  "labels": {
+    "username": "Tài khoản",
+    "password": "Mật khẩu",
+    "email": "Email",
+    "name": "Tên",
+    "description": "Mô tả",
+    "price": "Giá",
+    "quantity": "Số lượng",
+    "total": "Tổng cộng",
+    "subtotal": "Tạm tính",
+    "reason": "Lý do",
+    "quantityTimes": "×{{qty}}"
+  },
+  "status": {
+    "available": "Sẵn sàng",
+    "occupied": "Đang phục vụ",
+    "needsPayment": "Cần thanh toán",
+    "reserved": "Đã đặt",
+    "closed": "Đã đóng",
+    "processing": "Đang xử lý",
+    "completed": "Hoàn tất",
+    "cancelled": "Đã hủy",
+    "pending": "Đang chờ",
+    "sentToKitchen": "Đã gửi bếp",
+    "paid": "Đã thanh toán",
+    "voided": "Đã void"
+  },
+  "nav": {
+    "tables": "Bàn",
+    "orders": "Đơn hàng",
+    "profile": "Hồ sơ",
+    "tableMap": "Sơ đồ bàn",
+    "bills": "Hóa đơn",
+    "quickReports": "Báo cáo nhanh",
+    "dashboard": "Tổng quan",
+    "kitchen": "Bếp",
+    "menu": "Thực đơn",
+    "auditLogs": "Nhật ký kiểm tra",
+    "staff": "Nhân viên",
+    "reports": "Báo cáo"
+  },
+  "kitchen": {
+    "title": "Màn hình bếp"
+  },
+  "brand": "Restaurant POS",
+  "comingSoon": "Phần này chưa triển khai. Vui lòng dùng menu bên để tiếp tục.",
+  "loading": "Đang tải...",
+  "sessionExpired": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+  "roles": {
+    "Owner": "Chủ quán",
+    "Manager": "Quản lý",
+    "Cashier": "Thu ngân",
+    "Waiter": "Phục vụ"
+  },
+  "accessibility": {
+    "changeLanguage": "Đổi ngôn ngữ",
+    "closeNotification": "Đóng thông báo"
+  }
+}

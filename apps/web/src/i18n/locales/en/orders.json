@@ -1,0 +1,31 @@
+{
+  "statusLabel": "Status",
+  "lineItem": {
+    "betweenStatusAndAmount": "—"
+  },
+  "items": {
+    "title": "Items Ordered"
+  },
+  "actions": {
+    "create": "Create Order",
+    "addItem": "Add Item",
+    "increase": "Increase",
+    "decrease": "Decrease",
+    "cancelItem": "Cancel Item",
+    "sendToKitchen": "Send to Kitchen",
+    "cancelReason": "Cancellation Reason",
+    "reasonPlaceholder": "Cancellation reason"
+  },
+  "status": {
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "cooking": "Cooking",
+    "ready": "Ready",
+    "cancelled": "Cancelled",
+    "sentToKitchen": "Sent to Kitchen"
+  },
+  "loading": "Loading order...",
+  "placeholder": {
+    "searchMenu": "Search menu..."
+  }
+}

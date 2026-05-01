@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export default function Toast({
   message,
@@ -9,6 +10,7 @@ export default function Toast({
   onClose: () => void
   variant?: 'error' | 'warning' | 'success'
 }) {
+  const { t } = useTranslation('common')
   useEffect(() => {
     const timer = window.setTimeout(onClose, 3500)
     return () => window.clearTimeout(timer)
@@ -29,7 +31,7 @@ export default function Toast({
             type="button"
             onClick={onClose}
             className="rounded px-1 text-sm font-semibold opacity-70 hover:opacity-100"
-            aria-label="Close notification"
+            aria-label={t('accessibility.closeNotification')}
           >
             ×
           </button>

@@ -1,0 +1,14 @@
+{
+  "title": "Audit logs",
+  "log": {
+    "action": "Hành động",
+    "reason": "Lý do",
+    "systemUser": "Hệ thống"
+  },
+  "actions": {
+    "clearFilter": "Xóa lọc"
+  },
+  "placeholder": {
+    "actionFilter": "pay_bill, void_bill..."
+  }
+}

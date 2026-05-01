@@ -1,0 +1,14 @@
+{
+  "title": "Audit Logs",
+  "log": {
+    "action": "Action",
+    "reason": "Reason",
+    "systemUser": "System"
+  },
+  "actions": {
+    "clearFilter": "Clear Filter"
+  },
+  "placeholder": {
+    "actionFilter": "pay_bill, void_bill..."
+  }
+}
