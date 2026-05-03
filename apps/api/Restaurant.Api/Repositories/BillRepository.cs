@@ -89,6 +89,9 @@ public sealed class BillRepository(RestaurantDbContext dbContext) : IBillReposit
     public Task AddVoidLogAsync(VoidLog voidLog, CancellationToken cancellationToken = default)
         => dbContext.VoidLogs.AddAsync(voidLog, cancellationToken).AsTask();
 
+    public Task AddPrintJobAsync(PrintJob printJob, CancellationToken cancellationToken = default)
+        => dbContext.PrintJobs.AddAsync(printJob, cancellationToken).AsTask();
+
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)
         => dbContext.SaveChangesAsync(cancellationToken);
 }

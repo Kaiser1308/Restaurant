@@ -14,5 +14,6 @@ public interface IBillRepository
     Task<string> NextBillNumberAsync(Guid tenantId, DateOnly date, CancellationToken cancellationToken = default);
     Task AddBillAsync(Bill bill, CancellationToken cancellationToken = default);
     Task AddVoidLogAsync(VoidLog voidLog, CancellationToken cancellationToken = default);
+    Task AddPrintJobAsync(PrintJob printJob, CancellationToken cancellationToken = default);
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

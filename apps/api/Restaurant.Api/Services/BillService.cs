@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Restaurant.Api.Common.Exceptions;
 using Restaurant.Api.Domain.Entities;
 using Restaurant.Api.Domain.Enums;
@@ -86,12 +87,41 @@ public sealed class BillService(
         order.Table.Status = TableStatus.Available;
         order.Table.UpdatedAt = now;
 
+        var printJob = new PrintJob
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            EntityType = "bill",
+            EntityId = bill.Id,
+            PrinterType = PrinterType.Cashier,
+            Status = PrintJobStatus.Pending,
+            PrintKey = $"cashier:{bill.Id}",
+            ContentJson = JsonSerializer.Serialize(new
+            {
+                billNumber = bill.BillNumber,
+                tableName = order.Table.Name,
+                paymentType = bill.PaymentType.ToString(),
+                totalAmount = bill.TotalAmount,
+                paidAt = bill.PaidAt,
+                items = billItems.Select(x => new
+                {
+                    itemName = x.ItemNameSnapshot,
+                    quantity = x.Quantity,
+                    unitPrice = x.UnitPriceSnapshot,
+                    lineTotal = x.LineTotal
+                })
+            }),
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
         await billRepository.AddBillAsync(bill, cancellationToken);
+        await billRepository.AddPrintJobAsync(printJob, cancellationToken);
         await AddAuditAsync("pay_bill", "bill", bill.Id, null, cancellationToken);
         await billRepository.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        return new PayOrderResponse(bill.Id, bill.BillNumber, bill.OrderId, bill.Status.ToString(), bill.PaymentType.ToString(), bill.TotalAmount, bill.PaidAt);
+        return new PayOrderResponse(bill.Id, bill.BillNumber, bill.OrderId, bill.Status.ToString(), bill.PaymentType.ToString(), bill.TotalAmount, bill.PaidAt, printJob.Id);
     }
 
     public async Task<BillResponse> GetAsync(Guid id, CancellationToken cancellationToken = default)
