@@ -22,6 +22,7 @@ public sealed class RestaurantDbContext(
     public DbSet<VoidLog> VoidLogs => Set<VoidLog>();
     public DbSet<BillNumberSequence> BillNumberSequences => Set<BillNumberSequence>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<PrintJob> PrintJobs => Set<PrintJob>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -344,6 +345,32 @@ public sealed class RestaurantDbContext(
             entity.HasOne(x => x.User)
                 .WithMany(x => x.AuditLogs)
                 .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasQueryFilter(x => !tenantContext.IsAuthenticated || x.TenantId == tenantContext.TenantId);
+        });
+
+        modelBuilder.Entity<PrintJob>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.EntityType).HasMaxLength(50).IsRequired();
+            entity.Property(x => x.PrinterType).HasConversion<string>().HasMaxLength(50);
+            entity.Property(x => x.PrintKey).HasMaxLength(200).IsRequired();
+            entity.Property(x => x.Status).HasConversion<string>().HasMaxLength(50).HasDefaultValue(PrintJobStatus.Pending);
+            entity.Property(x => x.ContentJson).IsRequired();
+            entity.Property(x => x.ErrorMessage).HasMaxLength(2000);
+            entity.Property(x => x.RetryCount).HasDefaultValue(0);
+            entity.Property(x => x.CreatedAt).IsRequired();
+            entity.Property(x => x.UpdatedAt).IsRequired();
+
+            entity.HasIndex(x => new { x.TenantId, x.PrintKey }).IsUnique();
+            entity.HasIndex(x => new { x.TenantId, x.Status });
+            entity.HasIndex(x => new { x.TenantId, x.PrinterType, x.Status });
+            entity.HasIndex(x => new { x.TenantId, x.CreatedAt });
+
+            entity.HasOne(x => x.Tenant)
+                .WithMany(x => x.PrintJobs)
+                .HasForeignKey(x => x.TenantId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasQueryFilter(x => !tenantContext.IsAuthenticated || x.TenantId == tenantContext.TenantId);
