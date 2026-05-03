@@ -45,8 +45,8 @@ public sealed class BillService(
             throw new BusinessException("All payable items must be sent to kitchen before payment.", 409);
         }
 
-        var tenantId = tenantContext.TenantId ?? throw new UnauthorizedException();
-        var userId = tenantContext.UserId ?? throw new UnauthorizedException();
+        var tenantId = tenantContext.RequireTenantId();
+        var userId = tenantContext.RequireUserId();
         var now = DateTimeOffset.UtcNow;
         var billNumber = await billRepository.NextBillNumberAsync(tenantId, DateOnly.FromDateTime(now.UtcDateTime), cancellationToken);
         var billItems = payableItems
@@ -128,7 +128,7 @@ public sealed class BillService(
 
     public async Task<BillResponse> VoidAsync(Guid id, VoidBillRequest request, CancellationToken cancellationToken = default)
     {
-        var role = tenantContext.Role ?? throw new UnauthorizedException();
+        var role = tenantContext.RequireRole();
         if (!permissionService.CanVoidBill(role))
         {
             throw new ForbiddenException("Only owner can void bills.");
@@ -142,7 +142,7 @@ public sealed class BillService(
         }
 
         var now = DateTimeOffset.UtcNow;
-        var userId = tenantContext.UserId ?? throw new UnauthorizedException();
+        var userId = tenantContext.RequireUserId();
         var reason = request.Reason.Trim();
 
         bill.Status = BillStatus.Voided;
@@ -173,8 +173,8 @@ public sealed class BillService(
         var log = new AuditLog
         {
             Id = Guid.NewGuid(),
-            TenantId = tenantContext.TenantId ?? Guid.Empty,
-            UserId = tenantContext.UserId,
+            TenantId = tenantContext.RequireTenantId(),
+            UserId = tenantContext.RequireUserId(),
             Action = action,
             EntityType = entityType,
             EntityId = entityId,

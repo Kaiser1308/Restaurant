@@ -26,9 +26,9 @@ public sealed class OrderService(
         var order = new Order
         {
             Id = Guid.NewGuid(),
-            TenantId = tenantContext.TenantId ?? Guid.Empty,
+            TenantId = tenantContext.RequireTenantId(),
             TableId = table.Id,
-            CreatedByUserId = tenantContext.UserId ?? Guid.Empty,
+            CreatedByUserId = tenantContext.RequireUserId(),
             Status = OrderStatus.Pending,
             CreatedAt = now,
             UpdatedAt = now
@@ -72,7 +72,7 @@ public sealed class OrderService(
         var item = new OrderItem
         {
             Id = Guid.NewGuid(),
-            TenantId = tenantContext.TenantId ?? Guid.Empty,
+            TenantId = tenantContext.RequireTenantId(),
             OrderId = order.Id,
             MenuItemId = menuItem.Id,
             ItemNameSnapshot = menuItem.Name,
@@ -119,7 +119,7 @@ public sealed class OrderService(
 
         item.Status = OrderItemStatus.Cancelled;
         item.CancelReason = request.Reason.Trim();
-        item.CancelledByUserId = tenantContext.UserId;
+        item.CancelledByUserId = tenantContext.RequireUserId();
         item.CancelledAt = DateTimeOffset.UtcNow;
         item.UpdatedAt = DateTimeOffset.UtcNow;
         await AddAuditAsync("cancel_order_item", "order_item", item.Id, item.CancelReason, cancellationToken);
@@ -163,8 +163,8 @@ public sealed class OrderService(
         var log = new AuditLog
         {
             Id = Guid.NewGuid(),
-            TenantId = tenantContext.TenantId ?? Guid.Empty,
-            UserId = tenantContext.UserId,
+            TenantId = tenantContext.RequireTenantId(),
+            UserId = tenantContext.RequireUserId(),
             Action = action,
             EntityType = entityType,
             EntityId = entityId,

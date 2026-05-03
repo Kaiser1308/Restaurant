@@ -28,7 +28,7 @@ public sealed class TableService(
         var table = new RestaurantTable
         {
             Id = Guid.NewGuid(),
-            TenantId = tenantContext.TenantId ?? Guid.Empty,
+            TenantId = tenantContext.RequireTenantId(),
             Name = request.Name.Trim(),
             Status = TableStatus.Available,
             CreatedAt = DateTimeOffset.UtcNow,

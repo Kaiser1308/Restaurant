@@ -34,7 +34,7 @@ public sealed class MenuItemService(
         var item = new MenuItem
         {
             Id = Guid.NewGuid(),
-            TenantId = tenantContext.TenantId ?? Guid.Empty,
+            TenantId = tenantContext.RequireTenantId(),
             CategoryId = request.CategoryId,
             Name = request.Name.Trim(),
             Price = request.Price,
@@ -79,7 +79,7 @@ public sealed class MenuItemService(
         var item = await menuItemRepository.GetByIdAsync(id, cancellationToken)
             ?? throw new NotFoundException("Menu item not found.");
 
-        var tenantId = tenantContext.TenantId ?? Guid.Empty;
+        var tenantId = tenantContext.RequireTenantId();
         var oldObjectKey = item.ImageObjectKey;
         var extension = GetFileExtension(image.ContentType);
         var objectKey = $"tenants/{tenantId}/menu-items/{item.Id}/{Guid.NewGuid():N}{extension}";

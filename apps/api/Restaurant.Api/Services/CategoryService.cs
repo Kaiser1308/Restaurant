@@ -27,7 +27,7 @@ public sealed class CategoryService(
         var category = new Category
         {
             Id = Guid.NewGuid(),
-            TenantId = tenantContext.TenantId ?? Guid.Empty,
+            TenantId = tenantContext.RequireTenantId(),
             Name = request.Name.Trim(),
             SortOrder = request.SortOrder,
             IsActive = true,
