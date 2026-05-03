@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Restaurant.Api.Common.Exceptions;
 using Restaurant.Api.Domain.Entities;
 using Restaurant.Api.Domain.Enums;
@@ -152,10 +153,39 @@ public sealed class OrderService(
             item.UpdatedAt = now;
         }
 
+        var content = new
+        {
+            TableName = order.Table.Name,
+            OrderId = order.Id,
+            SentAt = now,
+            Items = pendingItems.Select(x => new
+            {
+                x.ItemNameSnapshot,
+                x.Quantity,
+                x.UnitPrice,
+                LineTotal = x.UnitPrice * x.Quantity
+            }).ToList()
+        };
+
+        var printJob = new PrintJob
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantContext.RequireTenantId(),
+            EntityType = "order",
+            EntityId = order.Id,
+            PrinterType = PrinterType.Kitchen,
+            PrintKey = $"kitchen:{order.Id}:{now:yyyyMMddHHmmssfffffff}",
+            Status = PrintJobStatus.Pending,
+            ContentJson = JsonSerializer.Serialize(content),
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
         order.UpdatedAt = now;
+        await orderRepository.AddPrintJobAsync(printJob, cancellationToken);
         await AddAuditAsync("send_to_kitchen", "order", order.Id, null, cancellationToken);
         await orderRepository.SaveChangesAsync(cancellationToken);
-        return new SendToKitchenResponse(order.Id, order.Status.ToString());
+        return new SendToKitchenResponse(order.Id, order.Status.ToString(), printJob.Id);
     }
 
     private async Task AddAuditAsync(string action, string entityType, Guid entityId, string? reason, CancellationToken cancellationToken)

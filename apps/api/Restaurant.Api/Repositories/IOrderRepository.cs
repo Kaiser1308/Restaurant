@@ -11,5 +11,6 @@ public interface IOrderRepository
     Task AddOrderAsync(Order order, CancellationToken cancellationToken = default);
     Task AddOrderItemAsync(OrderItem item, CancellationToken cancellationToken = default);
     Task AddAuditLogAsync(AuditLog log, CancellationToken cancellationToken = default);
+    Task AddPrintJobAsync(PrintJob printJob, CancellationToken cancellationToken = default);
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }
