@@ -1,6 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { useAuth } from '@/features/auth'
-import { canManageMenu, canManageTables } from '@/features/auth/utils/roleAccess'
+import { canManageMenu, canManageTables, useAuth } from '@/features/auth'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import { useTranslation } from 'react-i18next'
 

@@ -1,7 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom'
-import { useAuth } from '../features/auth/hooks/useAuth'
+import { getDefaultPathByRole, useAuth } from '@/features/auth'
 import type { User } from '@/types'
-import { getDefaultPathByRole } from '@/features/auth/utils/roleAccess'
 import { useTranslation } from 'react-i18next'
 
 function LoadingScreen() {
