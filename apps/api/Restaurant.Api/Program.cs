@@ -15,6 +15,7 @@ using Microsoft.Extensions.Options;
 using Minio;
 using Restaurant.Api.Infrastructure.Storage;
 using Restaurant.Api.Middleware;
+using Restaurant.Api.DTOs.PrintJobs;
 using Restaurant.Api.Repositories;
 using Restaurant.Api.Services;
 
@@ -129,6 +130,9 @@ builder.Services.AddSingleton<IMinioClient>(serviceProvider =>
     return client.Build();
 });
 builder.Services.AddSingleton<IObjectStorageService, MinioObjectStorageService>();
+builder.Services.Configure<PrintAgentOptions>(builder.Configuration.GetSection("PrintAgent"));
+builder.Services.AddScoped<IPrintJobRepository, PrintJobRepository>();
+builder.Services.AddScoped<IPrintJobService, PrintJobService>();
 
 var app = builder.Build();
 
