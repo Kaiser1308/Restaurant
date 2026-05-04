@@ -24,6 +24,17 @@
     "cancelled": "Cancelled",
     "sentToKitchen": "Sent to Kitchen"
   },
+  "printStatus": {
+    "title": "Kitchen print",
+    "loading": "Checking print status...",
+    "notFound": "No print job yet",
+    "status": {
+      "Pending": "Waiting to print",
+      "Printing": "Printing",
+      "Printed": "Printed",
+      "Failed": "Print failed"
+    }
+  },
   "loading": "Loading order...",
   "placeholder": {
     "searchMenu": "Search menu..."

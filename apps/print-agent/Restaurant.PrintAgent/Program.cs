@@ -16,6 +16,7 @@ builder.Services.AddHttpClient<PrintJobClient>(client =>
 });
 
 builder.Services.AddSingleton<TicketFormatter>();
+builder.Services.AddSingleton<EscPosTcpPrinter>();
 builder.Services.AddHostedService<Worker>();
 
 var host = builder.Build();

@@ -25,6 +25,17 @@
     "sentToKitchen": "Đã gửi bếp"
   },
   "loading": "Đang tải đơn hàng...",
+  "printStatus": {
+    "title": "In b\u1ebfp",
+    "loading": "\u0110ang ki\u1ec3m tra tr\u1ea1ng th\u00e1i in...",
+    "notFound": "Ch\u01b0a c\u00f3 l\u1ec7nh in",
+    "status": {
+      "Pending": "\u0110ang ch\u1edd in",
+      "Printing": "\u0110ang in",
+      "Printed": "\u0110\u00e3 in",
+      "Failed": "In th\u1ea5t b\u1ea1i"
+    }
+  },
   "placeholder": {
     "searchMenu": "Tìm kiếm menu..."
   }

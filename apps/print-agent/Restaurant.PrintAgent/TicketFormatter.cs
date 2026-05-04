@@ -15,61 +15,128 @@ public class TicketFormatter
         using var doc = JsonDocument.Parse(job.ContentJson);
         var root = doc.RootElement;
 
-        if (root.TryGetProperty("TableName", out var tableName) && tableName.ValueKind == JsonValueKind.String)
+        if (TryGetProperty(root, out var tableName, "TableName", "tableName"))
         {
-            sb.AppendLine($"Table: {tableName.GetString()}");
+            sb.AppendLine($"Table: {GetDisplayValue(tableName)}");
         }
 
-        if (root.TryGetProperty("OrderId", out var orderId) && orderId.ValueKind == JsonValueKind.String)
+        if (TryGetProperty(root, out var orderId, "OrderId", "orderId"))
         {
-            sb.AppendLine($"Order: {orderId.GetString()}");
+            sb.AppendLine($"Order: {GetDisplayValue(orderId)}");
         }
 
-        if (root.TryGetProperty("BillNumber", out var billNumber) && billNumber.ValueKind == JsonValueKind.String)
+        if (TryGetProperty(root, out var billNumber, "BillNumber", "billNumber"))
         {
-            sb.AppendLine($"Bill: {billNumber.GetString()}");
+            sb.AppendLine($"Bill: {GetDisplayValue(billNumber)}");
         }
 
-        if (root.TryGetProperty("PaymentType", out var paymentType) && paymentType.ValueKind == JsonValueKind.String)
+        if (TryGetProperty(root, out var paymentType, "PaymentType", "paymentType"))
         {
-            sb.AppendLine($"Payment: {paymentType.GetString()}");
+            sb.AppendLine($"Payment: {GetDisplayValue(paymentType)}");
         }
 
         sb.AppendLine("--------------------------------");
 
-        if (root.TryGetProperty("Items", out var items) && items.ValueKind == JsonValueKind.Array)
+        if (TryGetProperty(root, out var items, "Items", "items") && items.ValueKind == JsonValueKind.Array)
         {
             foreach (var item in items.EnumerateArray())
             {
-                var quantity = item.TryGetProperty("Quantity", out var q) ? q.GetInt32() : 1;
-                var name = item.TryGetProperty("ItemNameSnapshot", out var ns)
-                    ? ns.GetString()
-                    : item.TryGetProperty("ItemName", out var nn)
-                        ? nn.GetString()
-                        : "Unknown Item";
+                var quantity = TryGetProperty(item, out var q, "Quantity", "quantity")
+                    ? GetQuantity(q)
+                    : 1;
+                var name = TryGetProperty(item, out var itemName, "ItemNameSnapshot", "itemName", "ItemName")
+                    ? GetDisplayValue(itemName)
+                    : "Unknown Item";
+
                 sb.AppendLine($"  {quantity}x {name}");
             }
+        }
+        else if (TryGetProperty(root, out var itemName, "ItemNameSnapshot", "itemName", "ItemName"))
+        {
+            var quantity = TryGetProperty(root, out var q, "Quantity", "quantity")
+                ? GetQuantity(q)
+                : 1;
+            sb.AppendLine($"  {quantity}x {GetDisplayValue(itemName)}");
         }
 
         sb.AppendLine("--------------------------------");
 
-        if (root.TryGetProperty("TotalAmount", out var total) && total.ValueKind == JsonValueKind.Number)
+        if (TryGetProperty(root, out var total, "TotalAmount", "totalAmount") && TryGetDecimal(total, out var amount))
         {
-            sb.AppendLine($"  TOTAL: {total.GetDecimal():N0} VND");
+            sb.AppendLine($"  TOTAL: {amount:N0} VND");
         }
 
-        if (root.TryGetProperty("SentAt", out var sentAt) && sentAt.ValueKind == JsonValueKind.String)
+        if (TryGetProperty(root, out var sentAt, "SentAt", "sentAt"))
         {
-            sb.AppendLine($"Sent: {sentAt.GetString()}");
+            sb.AppendLine($"Sent: {GetDisplayValue(sentAt)}");
         }
 
-        if (root.TryGetProperty("PaidAt", out var paidAt) && paidAt.ValueKind == JsonValueKind.String)
+        if (TryGetProperty(root, out var paidAt, "PaidAt", "paidAt"))
         {
-            sb.AppendLine($"Paid: {paidAt.GetString()}");
+            sb.AppendLine($"Paid: {GetDisplayValue(paidAt)}");
+        }
+
+        if (TryGetProperty(root, out var reason, "Reason", "reason"))
+        {
+            sb.AppendLine($"Reason: {GetDisplayValue(reason)}");
+        }
+
+        if (TryGetProperty(root, out var cancelledAt, "CancelledAt", "cancelledAt"))
+        {
+            sb.AppendLine($"Cancelled: {GetDisplayValue(cancelledAt)}");
         }
 
         sb.AppendLine("================================");
 
         return sb.ToString();
+    }
+
+    private static bool TryGetProperty(JsonElement element, out JsonElement value, params string[] names)
+    {
+        foreach (var name in names)
+        {
+            if (element.TryGetProperty(name, out value))
+            {
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
+    }
+
+    private static string GetDisplayValue(JsonElement element)
+    {
+        return element.ValueKind == JsonValueKind.String
+            ? element.GetString() ?? string.Empty
+            : element.ToString();
+    }
+
+    private static int GetQuantity(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out var quantity))
+        {
+            return quantity;
+        }
+
+        return element.ValueKind == JsonValueKind.String && int.TryParse(element.GetString(), out quantity)
+            ? quantity
+            : 1;
+    }
+
+    private static bool TryGetDecimal(JsonElement element, out decimal value)
+    {
+        if (element.ValueKind == JsonValueKind.Number)
+        {
+            return element.TryGetDecimal(out value);
+        }
+
+        if (element.ValueKind == JsonValueKind.String && decimal.TryParse(element.GetString(), out value))
+        {
+            return true;
+        }
+
+        value = default;
+        return false;
     }
 }

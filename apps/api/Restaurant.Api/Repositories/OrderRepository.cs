@@ -25,6 +25,7 @@ public sealed class OrderRepository(RestaurantDbContext dbContext) : IOrderRepos
     public Task<OrderItem?> GetItemByIdAsync(Guid itemId, CancellationToken cancellationToken = default)
         => dbContext.OrderItems
             .Include(x => x.Order)
+            .ThenInclude(x => x.Table)
             .FirstOrDefaultAsync(x => x.Id == itemId, cancellationToken);
 
     public Task AddOrderAsync(Order order, CancellationToken cancellationToken = default)

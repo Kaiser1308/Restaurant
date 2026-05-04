@@ -7,17 +7,20 @@ public class Worker : BackgroundService
     private readonly ILogger<Worker> _logger;
     private readonly PrintJobClient _printJobClient;
     private readonly TicketFormatter _ticketFormatter;
+    private readonly EscPosTcpPrinter _escPosTcpPrinter;
     private readonly PrintAgentOptions _options;
 
     public Worker(
         ILogger<Worker> logger,
         PrintJobClient printJobClient,
         TicketFormatter ticketFormatter,
+        EscPosTcpPrinter escPosTcpPrinter,
         IOptions<PrintAgentOptions> options)
     {
         _logger = logger;
         _printJobClient = printJobClient;
         _ticketFormatter = ticketFormatter;
+        _escPosTcpPrinter = escPosTcpPrinter;
         _options = options.Value;
     }
 
@@ -45,7 +48,15 @@ public class Worker : BackgroundService
                         await _printJobClient.MarkPrintingAsync(job.Id, stoppingToken);
 
                         var ticket = _ticketFormatter.Format(job);
-                        _logger.LogInformation("Printing ticket:\n{Ticket}", ticket);
+                        if (IsRealMode())
+                        {
+                            await _escPosTcpPrinter.SendAsync(ticket, stoppingToken);
+                            _logger.LogInformation("Sent print job {Id} to TCP printer", job.Id);
+                        }
+                        else
+                        {
+                            _logger.LogInformation("Printing ticket:\n{Ticket}", ticket);
+                        }
 
                         await _printJobClient.MarkPrintedAsync(job.Id, stoppingToken);
                         _logger.LogInformation("Print job {Id} completed successfully", job.Id);
@@ -72,5 +83,10 @@ public class Worker : BackgroundService
 
             await Task.Delay(_options.PollingIntervalSeconds * 1000, stoppingToken);
         }
+    }
+
+    private bool IsRealMode()
+    {
+        return string.Equals(_options.PrintMode, "Real", StringComparison.OrdinalIgnoreCase);
     }
 }

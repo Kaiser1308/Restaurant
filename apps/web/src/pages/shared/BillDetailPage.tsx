@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useBill } from '@/features/bills'
 import { billsApi } from '@/features/bills'
+import { useLatestPrintJob } from '@/features/print-jobs'
 import Button from '@/components/Button'
 import Input from '@/components/Input'
 import Card from '@/components/Card'
@@ -22,6 +23,11 @@ export default function BillDetailPage({ canVoid }: { canVoid: boolean }) {
   const { formatMoney, formatDateTime } = useLocaleFormat()
   const { t } = useTranslation('bills')
   const { t: tCommon } = useTranslation('common')
+  const { data: cashierPrintJob, isLoading: isPrintJobLoading, isError: isPrintJobError } = useLatestPrintJob({
+    entityType: 'bill',
+    entityId: bill?.id,
+    printerType: 'Cashier',
+  })
 
   const voidBill = useMutation({
     mutationFn: () => billsApi.void(billId, reason.trim()),
@@ -48,6 +54,21 @@ export default function BillDetailPage({ canVoid }: { canVoid: boolean }) {
             <p className="text-sm text-[var(--color-on-surface-variant)]">{bill.tableName} · {formatDateTime(bill.paidAt)}</p>
           </div>
           <StatusBadge status={bill.status} />
+        </div>
+        <div className="rounded border border-[var(--color-outline-variant)] bg-[var(--color-surface-low)] px-3 py-2 text-sm">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-semibold">{t('printStatus.title')}</span>
+            <span>
+              {cashierPrintJob ? t(`printStatus.status.${cashierPrintJob.status}`) : isPrintJobLoading ? t('printStatus.loading') : t('printStatus.notFound')}
+            </span>
+          </div>
+          {cashierPrintJob?.status === 'Failed' ? (
+            <div className="mt-1 space-y-1 text-xs text-[var(--color-error)]">
+              <p>{t('printStatus.retryCount', { count: cashierPrintJob.retryCount })}</p>
+              {cashierPrintJob.errorMessage ? <p>{t('printStatus.errorMessage', { message: cashierPrintJob.errorMessage })}</p> : null}
+            </div>
+          ) : null}
+          {isPrintJobError ? <p className="mt-1 text-xs text-[var(--color-error)]">{t('printStatus.notFound')}</p> : null}
         </div>
         {bill.items.map(item => (
           <div key={item.id} className="flex justify-between rounded border p-3">

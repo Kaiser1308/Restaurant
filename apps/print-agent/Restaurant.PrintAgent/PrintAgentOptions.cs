@@ -9,5 +9,7 @@ public class PrintAgentOptions
     public int PollingIntervalSeconds { get; set; } = 3;
     public string PrintMode { get; set; } = "Mock";
     public string? PrinterType { get; set; }
+    public string? PrinterHost { get; set; }
+    public int PrinterPort { get; set; } = 9100;
     public int Limit { get; set; } = 10;
 }

@@ -27,6 +27,21 @@ public sealed class PrintJobRepository(RestaurantDbContext dbContext) : IPrintJo
     public Task<PrintJob?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         => dbContext.PrintJobs.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
+    public Task<PrintJob?> GetLatestByEntityAsync(Guid tenantId, string entityType, Guid entityId, PrinterType? printerType, CancellationToken cancellationToken = default)
+    {
+        var query = dbContext.PrintJobs
+            .Where(x => x.TenantId == tenantId && x.EntityType == entityType && x.EntityId == entityId);
+
+        if (printerType is not null)
+        {
+            query = query.Where(x => x.PrinterType == printerType);
+        }
+
+        return query
+            .OrderByDescending(x => x.CreatedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)
         => dbContext.SaveChangesAsync(cancellationToken);
 }

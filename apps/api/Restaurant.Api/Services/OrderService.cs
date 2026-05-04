@@ -113,16 +113,48 @@ public sealed class OrderService(
     public async Task<OrderDetailResponse> CancelItemAsync(Guid itemId, CancelOrderItemRequest request, CancellationToken cancellationToken = default)
     {
         var item = await orderRepository.GetItemByIdAsync(itemId, cancellationToken) ?? throw new NotFoundException("Order item not found.");
-        if (item.Status != OrderItemStatus.Pending)
+        if (item.Status is not (OrderItemStatus.Pending or OrderItemStatus.SentToKitchen))
         {
-            throw new ConflictException("Only pending item can be cancelled.");
+            throw new ConflictException("Only pending or sent-to-kitchen item can be cancelled.");
         }
 
+        var wasSentToKitchen = item.Status == OrderItemStatus.SentToKitchen;
+        var now = DateTimeOffset.UtcNow;
         item.Status = OrderItemStatus.Cancelled;
         item.CancelReason = request.Reason.Trim();
         item.CancelledByUserId = tenantContext.RequireUserId();
-        item.CancelledAt = DateTimeOffset.UtcNow;
-        item.UpdatedAt = DateTimeOffset.UtcNow;
+        item.CancelledAt = now;
+        item.UpdatedAt = now;
+
+        if (wasSentToKitchen)
+        {
+            var content = new
+            {
+                tableName = item.Order.Table.Name,
+                orderId = item.OrderId,
+                itemName = item.ItemNameSnapshot,
+                quantity = item.Quantity,
+                reason = item.CancelReason,
+                cancelledAt = now
+            };
+
+            var printJob = new PrintJob
+            {
+                Id = Guid.NewGuid(),
+                TenantId = tenantContext.RequireTenantId(),
+                EntityType = "order_item_cancel",
+                EntityId = item.Id,
+                PrinterType = PrinterType.KitchenCancel,
+                PrintKey = $"kitchen_cancel:{item.OrderId}:{item.Id}:{now:yyyyMMddHHmmssfffffff}",
+                Status = PrintJobStatus.Pending,
+                ContentJson = JsonSerializer.Serialize(content),
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            await orderRepository.AddPrintJobAsync(printJob, cancellationToken);
+        }
+
         await AddAuditAsync("cancel_order_item", "order_item", item.Id, item.CancelReason, cancellationToken);
         await orderRepository.SaveChangesAsync(cancellationToken);
 

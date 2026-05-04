@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Restaurant.Api.Common.Exceptions;
@@ -16,6 +17,15 @@ public sealed class PrintJobsController(
     IOptions<PrintAgentOptions> printAgentOptions) : ControllerBase
 {
     private const string AgentKeyHeader = "X-Print-Agent-Key";
+
+    [HttpGet("latest")]
+    [Authorize(Policy = "WaiterOrAbove")]
+    public Task<PrintJobStatusResponse> GetLatest(
+        [FromQuery] string entityType,
+        [FromQuery] Guid entityId,
+        [FromQuery] string? printerType,
+        CancellationToken cancellationToken)
+        => printJobService.GetLatestAsync(entityType, entityId, printerType, cancellationToken);
 
     [HttpGet("pending")]
     public async Task<ActionResult<IReadOnlyList<PrintJobResponse>>> GetPending(

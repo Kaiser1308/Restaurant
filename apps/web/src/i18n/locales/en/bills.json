@@ -24,6 +24,19 @@
     "paid": "Paid",
     "voided": "Voided"
   },
+  "printStatus": {
+    "title": "Cashier print",
+    "loading": "Checking print status...",
+    "notFound": "No print job yet",
+    "retryCount": "Retries: {{count}}",
+    "errorMessage": "Error: {{message}}",
+    "status": {
+      "Pending": "Waiting to print",
+      "Printing": "Printing",
+      "Printed": "Printed",
+      "Failed": "Print failed"
+    }
+  },
   "list": {
     "all": "All"
   },

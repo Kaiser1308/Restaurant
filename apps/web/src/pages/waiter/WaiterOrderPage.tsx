@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useOrderDetail } from '@/features/orders'
+import { useLatestPrintJob } from '@/features/print-jobs'
 import { useCategories, useMenuItems } from '@/features/menu'
 import { ordersApi } from '@/features/orders'
 import Button from '@/components/Button'
@@ -22,6 +23,12 @@ export default function WaiterOrderPage() {
   const [reasonByItem, setReasonByItem] = useState<Record<string, string>>({})
   const { t } = useTranslation('orders')
   const { formatMoney } = useLocaleFormat()
+  const shouldPollKitchenPrint = order?.status === 'SentToKitchen' || order?.status === 'Paid'
+  const { data: kitchenPrintJob, isLoading: isPrintJobLoading, isError: isPrintJobError } = useLatestPrintJob({
+    entityType: 'order',
+    entityId: shouldPollKitchenPrint ? order?.id : undefined,
+    printerType: 'Kitchen',
+  })
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['orderDetail', orderId] })
 
@@ -52,15 +59,27 @@ export default function WaiterOrderPage() {
         <div className="space-y-3">
           <p className="text-xl font-bold">{order.tableName}</p>
           <p className="text-sm">{t('statusLabel')}: <StatusBadge status={order.status} /></p>
+          {shouldPollKitchenPrint ? (
+            <div className="rounded border border-[var(--color-outline-variant)] bg-[var(--color-surface-low)] px-3 py-2 text-sm">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-semibold">{t('printStatus.title')}</span>
+                <span>
+                  {kitchenPrintJob ? t(`printStatus.status.${kitchenPrintJob.status}`) : isPrintJobLoading ? t('printStatus.loading') : t('printStatus.notFound')}
+                </span>
+              </div>
+              {isPrintJobError ? <p className="mt-1 text-xs text-[var(--color-error)]">{t('printStatus.notFound')}</p> : null}
+            </div>
+          ) : null}
           {order.items.map(item => (
             <div key={item.id} className="rounded border p-3">
               <p className="font-semibold">{item.itemNameSnapshot}</p>
               <p className="text-sm">
                 <StatusBadge status={item.status} /> {t('lineItem.betweenStatusAndAmount')} {formatMoney(item.lineTotal)}
               </p>
-              {item.status === 'Pending' ? (
+              {item.status === 'Pending' || item.status === 'SentToKitchen' ? (
                 <div className="mt-2 space-y-2">
-                  <div className="flex gap-2">
+                  {item.status === 'Pending' ? (
+                    <div className="flex gap-2">
                     <Button
                       size="sm"
                       aria-label={t('actions.decrease')}
@@ -76,7 +95,8 @@ export default function WaiterOrderPage() {
                     >
                       +
                     </Button>
-                  </div>
+                    </div>
+                  ) : null}
                   <Input
                     placeholder={t('actions.reasonPlaceholder')}
                     value={reasonByItem[item.id] || ''}
