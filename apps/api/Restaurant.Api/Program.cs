@@ -140,8 +140,18 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<RestaurantDbContext>();
     var seedService = scope.ServiceProvider.GetRequiredService<SeedService>();
-    await dbContext.Database.MigrateAsync();
-    await seedService.SeedAsync();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    try
+    {
+        await dbContext.Database.MigrateAsync();
+        await seedService.SeedAsync();
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Database migration or seeding failed");
+        throw;
+    }
 }
 
 if (app.Environment.IsDevelopment())

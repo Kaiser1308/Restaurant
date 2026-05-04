@@ -12,8 +12,8 @@ using Restaurant.Api.Infrastructure.Persistence;
 namespace Restaurant.Api.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    [Migration("20260501124955_AddMenuItemImage")]
-    partial class AddMenuItemImage
+    [Migration("20260504054949_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -539,6 +539,94 @@ namespace Restaurant.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("order_items", (string)null);
                 });
 
+            modelBuilder.Entity("Restaurant.Api.Domain.Entities.PrintJob", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ContentJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content_json");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("EntityId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("entity_id");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("entity_type");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("error_message");
+
+                    b.Property<string>("PrintKey")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("print_key");
+
+                    b.Property<DateTimeOffset?>("PrintedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("printed_at");
+
+                    b.Property<string>("PrinterType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("printer_type");
+
+                    b.Property<int>("RetryCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("retry_count");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasDefaultValue("Pending")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_print_jobs");
+
+                    b.HasIndex("TenantId", "CreatedAt")
+                        .HasDatabaseName("ix_print_jobs_tenant_id_created_at");
+
+                    b.HasIndex("TenantId", "PrintKey")
+                        .IsUnique()
+                        .HasDatabaseName("ix_print_jobs_tenant_id_print_key");
+
+                    b.HasIndex("TenantId", "Status")
+                        .HasDatabaseName("ix_print_jobs_tenant_id_status");
+
+                    b.HasIndex("TenantId", "PrinterType", "Status")
+                        .HasDatabaseName("ix_print_jobs_tenant_id_printer_type_status");
+
+                    b.ToTable("print_jobs", (string)null);
+                });
+
             modelBuilder.Entity("Restaurant.Api.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -980,6 +1068,18 @@ namespace Restaurant.Api.Infrastructure.Persistence.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("Restaurant.Api.Domain.Entities.PrintJob", b =>
+                {
+                    b.HasOne("Restaurant.Api.Domain.Entities.Tenant", "Tenant")
+                        .WithMany("PrintJobs")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_print_jobs_tenants_tenant_id");
+
+                    b.Navigation("Tenant");
+                });
+
             modelBuilder.Entity("Restaurant.Api.Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("Restaurant.Api.Domain.Entities.Tenant", "Tenant")
@@ -1106,6 +1206,8 @@ namespace Restaurant.Api.Infrastructure.Persistence.Migrations
                     b.Navigation("OrderItems");
 
                     b.Navigation("Orders");
+
+                    b.Navigation("PrintJobs");
 
                     b.Navigation("RefreshTokens");
 
