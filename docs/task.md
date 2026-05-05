@@ -55,18 +55,3 @@ Done (2026-05-01)
 ## Notes
 - **Locale cleanup:** Pared JSON to keys used from `App.tsx`, layouts, `StatusBadge`, `Toast`, `LanguageSwitcher`, and `format.ts`; removed `common.validation`; dropped duplicate/unreferenced auth navigation and login title keys.
 - **Nav parity:** Owner/Cashier `Reports` and Owner tables/menu/staff no longer return 404; Waiter bottom `Orders` no longer routes to an empty page.
-- **GitNexus:** For C# symbol-level limitations in some sessions, follow the documented fallback workflow.
-
-## GitNexus C# note
-- **Reference:** `docs/gitnexus-csharp-workaround.md`
-- **Use when:** MCP symbol-level `impact/context` fails for C# symbols.
-- **Do first:** Apply mandatory `repo: "Restaurant"` on all GitNexus MCP calls.
-
-## Temporary Policy (GitNexus C# unresolved symbols)
-- Continue implementation with compile-time blast radius + review loop.
-- Compile-time blast radius means: map `Controller -> Service Interface -> Service Implementation`, then list impacted direct callers before review.
-- For each task, run API build before review and again before commit:
-  - `cmd.exe /c "dotnet build apps\api\Restaurant.Api\Restaurant.Api.csproj"`
-- Keep scope file-bounded to the explicit file allowlist defined in the task plan (no out-of-scope edits).
-- Before any commit, run MCP `detect_changes` with `repo: "Restaurant"` and compare against the task allowlist.
-- If `detect_changes` shows a mismatch, block commit until scope is reconciled (revert/update plan) and rerun `detect_changes`.
