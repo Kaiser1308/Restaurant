@@ -1,10 +1,20 @@
 {
   "statusLabel": "Status",
   "lineItem": {
-    "betweenStatusAndAmount": "—"
+    "betweenStatusAndAmount": "-"
   },
   "items": {
-    "title": "Items Ordered"
+    "title": "Items Ordered",
+    "emptyTitle": "No items in this order",
+    "emptyDescription": "Add menu items from the right panel before sending to kitchen."
+  },
+  "categories": {
+    "emptyTitle": "No categories yet",
+    "emptyDescription": "Ask an owner or manager to create menu categories first."
+  },
+  "menu": {
+    "emptyTitle": "No matching menu items",
+    "emptyDescription": "Try another category or search term."
   },
   "actions": {
     "create": "Create Order",
@@ -12,6 +22,7 @@
     "increase": "Increase",
     "decrease": "Decrease",
     "cancelItem": "Cancel Item",
+    "cancelItemDescription": "Cancelled items remain visible in order history and are excluded from the bill.",
     "sendToKitchen": "Send to Kitchen",
     "cancelReason": "Cancellation Reason",
     "reasonPlaceholder": "Cancellation reason"
@@ -27,5 +38,11 @@
   "loading": "Loading order...",
   "placeholder": {
     "searchMenu": "Search menu..."
+  },
+  "errors": {
+    "addItemFailed": "Failed to add item. Please try again.",
+    "updateItemFailed": "Failed to update quantity. Please try again.",
+    "cancelItemFailed": "Failed to cancel item. Please try again.",
+    "sendToKitchenFailed": "Failed to send to kitchen. Please try again."
   }
 }

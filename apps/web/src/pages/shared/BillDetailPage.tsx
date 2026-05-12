@@ -5,10 +5,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useBill } from '@/features/bills'
 import { billsApi } from '@/features/bills'
 import Button from '@/components/Button'
-import Input from '@/components/Input'
 import Card from '@/components/Card'
-import Modal from '@/components/Modal'
+import ConfirmDialog from '@/components/ConfirmDialog'
 import StatusBadge from '@/components/StatusBadge'
+import Textarea from '@/components/Textarea'
 import Toast from '@/components/Toast'
 import { useLocaleFormat } from '@/utils/format'
 
@@ -20,7 +20,7 @@ export default function BillDetailPage({ canVoid }: { canVoid: boolean }) {
   const [reason, setReason] = useState('')
   const [toastMessage, setToastMessage] = useState('')
   const { formatMoney, formatDateTime } = useLocaleFormat()
-  const { t } = useTranslation('bills')
+  const { t } = useTranslation(['bills', 'common'])
   const { t: tCommon } = useTranslation('common')
 
   const voidBill = useMutation({
@@ -40,47 +40,52 @@ export default function BillDetailPage({ canVoid }: { canVoid: boolean }) {
   }
 
   return (
-    <Card>
-      <div className="space-y-4">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-xl font-bold">{t('title')} {bill.billNumber}</p>
-            <p className="text-sm text-[var(--color-on-surface-variant)]">{bill.tableName} · {formatDateTime(bill.paidAt)}</p>
-          </div>
-          <StatusBadge status={bill.status} />
-        </div>
-        {bill.items.map(item => (
-          <div key={item.id} className="flex justify-between rounded border p-3">
-            <p>
-              {item.itemNameSnapshot}{' '}
-              {tCommon('labels.quantityTimes', { qty: item.quantity })}
-            </p>
-            <p className="font-semibold">{formatMoney(item.lineTotal)}</p>
-          </div>
-        ))}
-        <div className="flex justify-between border-t pt-3 text-lg font-bold">
-          <span>{t('preview.totalAmount')}</span>
-          <span>{formatMoney(bill.totalAmount)}</span>
-        </div>
-        {bill.voidReason ? <p className="text-sm text-[var(--color-error)]">{t('actions.voidReason')}: {bill.voidReason}</p> : null}
-        {canVoid && bill.status === 'Paid' ? (
-          <Button variant="danger" onClick={() => setVoidOpen(true)}>{t('actions.void')}</Button>
-        ) : null}
-      </div>
-
-      <Modal open={voidOpen}>
+    <div className="app-page">
+      <Card>
         <div className="space-y-4">
-          <p className="text-lg font-bold">{t('actions.voidWithNumber', { billNumber: bill.billNumber })}</p>
-          <Input label={t('actions.voidReason')} value={reason} onChange={(e) => setReason(e.target.value)} placeholder={t('actions.voidPlaceholder')} />
-          <div className="flex gap-2">
-            <Button variant="secondary" className="flex-1" onClick={() => setVoidOpen(false)}>{t('common:actions.cancel')}</Button>
-            <Button variant="danger" className="flex-1" disabled={!reason.trim() || voidBill.isPending} onClick={() => voidBill.mutate()}>
-              {t('actions.confirmVoid')}
-            </Button>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-bold uppercase text-[var(--color-primary)]">{t('title')}</p>
+              <h1 className="mt-1 text-3xl font-extrabold leading-tight">{bill.billNumber}</h1>
+              <p className="text-sm text-[var(--color-on-surface-variant)]">{bill.tableName} / {formatDateTime(bill.paidAt)}</p>
+            </div>
+            <StatusBadge status={bill.status} />
           </div>
+
+          {bill.items.map((item) => (
+            <div key={item.id} className="flex justify-between gap-3 rounded-[var(--radius-card)] border border-[var(--color-outline-variant)] bg-[var(--color-surface)] p-3">
+              <p className="font-semibold">
+                {item.itemNameSnapshot}{' '}
+                {tCommon('labels.quantityTimes', { qty: item.quantity })}
+              </p>
+              <p className="font-bold">{formatMoney(item.lineTotal)}</p>
+            </div>
+          ))}
+
+          <div className="flex justify-between border-t border-[var(--color-outline-variant)] pt-3 text-lg font-extrabold">
+            <span>{t('preview.totalAmount')}</span>
+            <span>{formatMoney(bill.totalAmount)}</span>
+          </div>
+          {bill.voidReason ? <p className="text-sm font-semibold text-[var(--color-error)]">{t('actions.voidReason')}: {bill.voidReason}</p> : null}
+          {canVoid && bill.status === 'Paid' ? (
+            <Button variant="danger" onClick={() => setVoidOpen(true)} disabled={voidBill.isPending}>{t('actions.void')}</Button>
+          ) : null}
         </div>
-      </Modal>
-      {toastMessage ? <Toast message={toastMessage} variant="error" onClose={() => setToastMessage('')} /> : null}
-    </Card>
+
+        <ConfirmDialog
+          open={voidOpen}
+          title={t('actions.voidWithNumber', { billNumber: bill.billNumber })}
+          confirmLabel={t('actions.confirmVoid')}
+          cancelLabel={t('common:actions.cancel')}
+          confirmVariant="danger"
+          disabled={!reason.trim() || voidBill.isPending}
+          onCancel={() => setVoidOpen(false)}
+          onConfirm={() => voidBill.mutate()}
+        >
+          <Textarea label={t('actions.voidReason')} value={reason} onChange={(e) => setReason(e.target.value)} placeholder={t('actions.voidPlaceholder')} />
+        </ConfirmDialog>
+        {toastMessage ? <Toast message={toastMessage} variant="error" onClose={() => setToastMessage('')} /> : null}
+      </Card>
+    </div>
   )
 }

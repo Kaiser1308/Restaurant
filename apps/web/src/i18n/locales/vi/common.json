@@ -9,7 +9,9 @@
     "clear": "Xóa lọc",
     "confirm": "Xác nhận",
     "yes": "Có",
-    "no": "Không"
+    "no": "Không",
+    "manage": "Quản lý",
+    "refresh": "Làm mới"
   },
   "labels": {
     "username": "Tài khoản",
@@ -22,7 +24,8 @@
     "total": "Tổng cộng",
     "subtotal": "Tạm tính",
     "reason": "Lý do",
-    "quantityTimes": "×{{qty}}"
+    "quantityTimes": "x{{qty}}",
+    "status": "Trạng thái"
   },
   "status": {
     "available": "Sẵn sàng",
@@ -36,7 +39,8 @@
     "pending": "Đang chờ",
     "sentToKitchen": "Đã gửi bếp",
     "paid": "Đã thanh toán",
-    "voided": "Đã void"
+    "voided": "Đã void",
+    "failed": "Thất bại"
   },
   "nav": {
     "tables": "Bàn",
@@ -50,10 +54,42 @@
     "menu": "Thực đơn",
     "auditLogs": "Nhật ký kiểm tra",
     "staff": "Nhân viên",
-    "reports": "Báo cáo"
+    "reports": "Báo cáo",
+    "printJobs": "Lệnh in"
+  },
+  "dashboard": {
+    "subtitle": "Tổng quan vận hành cho bàn, thực đơn, nhật ký, báo cáo và tình trạng in.",
+    "activeTables": "Bàn đang hoạt động",
+    "unavailableItems": "Món đang tắt",
+    "quickActions": "Thao tác nhanh"
+  },
+  "printJobs": {
+    "title": "Lệnh in",
+    "subtitle": "Theo dõi lệnh in bếp và thu ngân đang chờ. Màn hình này dùng khóa print agent.",
+    "agentKey": "Khóa print agent",
+    "agentKeyPlaceholder": "Nhập khóa agent",
+    "printerType": "Loại máy in",
+    "allPrinters": "Tất cả máy in",
+    "kitchen": "Bếp",
+    "cashier": "Thu ngân",
+    "kitchenCancel": "Hủy bếp",
+    "missingKeyTitle": "Cần khóa print agent",
+    "missingKeyDescription": "Nhập khóa print agent cục bộ để đọc các lệnh in đang chờ.",
+    "emptyTitle": "Không có lệnh in đang chờ",
+    "emptyDescription": "Hàng đợi bếp và thu ngân đang trống.",
+    "columns": {
+      "printer": "Máy in",
+      "status": "Trạng thái",
+      "entity": "Đối tượng",
+      "retry": "Số lần thử",
+      "createdAt": "Thời gian tạo",
+      "error": "Lỗi"
+    }
   },
   "kitchen": {
-    "title": "Màn hình bếp"
+    "title": "Màn hình bếp",
+    "emptyTitle": "Không có đơn hàng đang nấu",
+    "emptyDescription": "Khi phục vụ gửi đơn vào bếp, đơn sẽ hiển thị tại đây."
   },
   "brand": "Restaurant POS",
   "comingSoon": "Phần này chưa triển khai. Vui lòng dùng menu bên để tiếp tục.",

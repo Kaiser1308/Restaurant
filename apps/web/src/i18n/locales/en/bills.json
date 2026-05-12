@@ -25,7 +25,8 @@
     "voided": "Voided"
   },
   "list": {
-    "all": "All"
+    "all": "All",
+    "empty": "No bills found."
   },
   "filter": {
     "date": "Date"
@@ -33,6 +34,9 @@
   "loading": {
     "preview": "Loading bill preview...",
     "detail": "Loading bill..."
+  },
+  "empty": {
+    "items": "No items in this order yet"
   },
   "errors": {
     "paymentFailed": "Payment failed. Please verify order and retry.",

@@ -14,10 +14,11 @@ export default function WaiterLayout({ children }: { children: React.ReactNode }
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-surface)] pb-16 md:pb-0">
-      <header className="border-b border-[var(--color-outline-variant)] bg-[var(--color-surface-white)] px-4 py-3">
+    <div className="min-h-screen bg-[var(--color-surface-low)] pb-16 md:pb-0">
+      <header className="border-b border-[var(--color-outline-variant)] bg-[var(--color-surface-white)] px-4 py-3 shadow-[var(--shadow-card)]">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between">
           <div>
+            <p className="text-xs font-bold uppercase text-[var(--color-primary)]">{t('common:brand')}</p>
             <p className="text-sm font-semibold text-[var(--color-on-surface)]">{currentUser?.name}</p>
             <p className="text-xs text-[var(--color-on-surface-variant)]">
               {currentUser?.role ? t(`common:roles.${currentUser.role}`) : ''}
@@ -28,23 +29,23 @@ export default function WaiterLayout({ children }: { children: React.ReactNode }
             <button
               onClick={handleLogout}
               disabled={isLogoutLoading}
-              className="rounded-lg border border-[var(--color-outline-variant)] px-3 py-1.5 text-sm font-semibold text-[var(--color-on-surface)]"
+              className="rounded-[var(--radius-button)] border border-[var(--color-outline-variant)] bg-[var(--color-surface-white)] px-3 py-1.5 text-sm font-semibold text-[var(--color-on-surface)] hover:bg-[var(--color-surface-low)]"
             >
               {t('auth:actions.logout')}
             </button>
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-5xl p-4">{children}</main>
-      <nav className="fixed bottom-0 left-0 right-0 border-t border-[var(--color-outline-variant)] bg-[var(--color-surface-white)] md:hidden">
+      <main className="mx-auto w-full max-w-5xl p-4 md:p-6">{children}</main>
+      <nav className="fixed bottom-0 left-0 right-0 border-t border-[var(--color-outline-variant)] bg-[var(--color-surface-white)] shadow-[var(--shadow-deep)] md:hidden">
         <div className="grid grid-cols-3 gap-1 px-2 py-2">
-          <NavLink to="/waiter/tables" className="rounded-lg px-3 py-2 text-center text-sm font-medium text-[var(--color-on-surface)]">
+          <NavLink to="/waiter/tables" className="nav-link min-h-[44px] flex items-center justify-center px-2 py-2 text-center">
             {t('common:nav.tables')}
           </NavLink>
-          <NavLink to="/waiter/orders" className="rounded-lg px-3 py-2 text-center text-sm font-medium text-[var(--color-on-surface)]">
+          <NavLink to="/waiter/orders" className="nav-link min-h-[44px] flex items-center justify-center px-2 py-2 text-center">
             {t('common:nav.orders')}
           </NavLink>
-          <NavLink to="/waiter/profile" className="rounded-lg px-3 py-2 text-center text-sm font-medium text-[var(--color-on-surface)]">
+          <NavLink to="/waiter/profile" className="nav-link min-h-[44px] flex items-center justify-center px-2 py-2 text-center">
             {t('common:nav.profile')}
           </NavLink>
         </div>

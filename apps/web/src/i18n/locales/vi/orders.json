@@ -1,10 +1,20 @@
 {
   "statusLabel": "Trạng thái",
   "lineItem": {
-    "betweenStatusAndAmount": "·"
+    "betweenStatusAndAmount": "-"
   },
   "items": {
-    "title": "Món đã đặt"
+    "title": "Món đã đặt",
+    "emptyTitle": "Order chưa có món",
+    "emptyDescription": "Thêm món từ khung bên phải trước khi gửi bếp."
+  },
+  "categories": {
+    "emptyTitle": "Chưa có danh mục",
+    "emptyDescription": "Chủ quán hoặc quản lý cần tạo danh mục thực đơn trước."
+  },
+  "menu": {
+    "emptyTitle": "Không có món phù hợp",
+    "emptyDescription": "Thử danh mục hoặc từ khóa khác."
   },
   "actions": {
     "create": "Tạo order",
@@ -12,6 +22,7 @@
     "increase": "Tăng số lượng",
     "decrease": "Giảm số lượng",
     "cancelItem": "Hủy món",
+    "cancelItemDescription": "Món đã hủy vẫn nằm trong lịch sử order và không tính vào bill.",
     "sendToKitchen": "Gửi vào bếp",
     "cancelReason": "Lý do hủy",
     "reasonPlaceholder": "Lý do hủy"
@@ -27,5 +38,11 @@
   "loading": "Đang tải đơn hàng...",
   "placeholder": {
     "searchMenu": "Tìm kiếm menu..."
+  },
+  "errors": {
+    "addItemFailed": "Không thể thêm món. Vui lòng thử lại.",
+    "updateItemFailed": "Không thể cập nhật số lượng. Vui lòng thử lại.",
+    "cancelItemFailed": "Không thể huỷ món. Vui lòng thử lại.",
+    "sendToKitchenFailed": "Không thể gửi bếp. Vui lòng thử lại."
   }
 }

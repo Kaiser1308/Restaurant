@@ -7,8 +7,10 @@ import { useBillPreview } from '@/features/bills'
 import { billsApi } from '@/features/bills'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
-import Modal from '@/components/Modal'
+import ConfirmDialog from '@/components/ConfirmDialog'
+import SegmentedControl from '@/components/SegmentedControl'
 import StatusBadge from '@/components/StatusBadge'
+import EmptyState from '@/components/EmptyState'
 import Toast from '@/components/Toast'
 import { useLocaleFormat } from '@/utils/format'
 import type { PaymentType } from '@/types'
@@ -23,7 +25,7 @@ export default function CashierPaymentPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
   const { formatMoney } = useLocaleFormat()
-  const { t } = useTranslation('bills')
+  const { t } = useTranslation(['bills', 'common'])
   const { t: tCommon } = useTranslation('common')
 
   const paymentTypeKey: Record<PaymentType, string> = {
@@ -47,66 +49,65 @@ export default function CashierPaymentPage() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_360px]">
+    <div className="app-page grid grid-cols-1 gap-4 lg:grid-cols-[1fr_380px]">
       <Card>
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xl font-bold">{preview.tableName}</p>
+              <p className="text-xs font-bold uppercase text-[var(--color-primary)]">{t('preview.title')}</p>
+              <p className="mt-1 text-3xl font-extrabold leading-tight">{preview.tableName}</p>
               <p className="text-sm text-[var(--color-on-surface-variant)]">{t('preview.orderNumber', { id: order.id.slice(0, 8) })}</p>
             </div>
             <StatusBadge status={order.status} />
           </div>
-          {preview.items.map(item => (
-            <div key={item.id} className="flex justify-between rounded border p-3">
-              <div>
-                <p className="font-semibold">{item.itemNameSnapshot}</p>
-                <p className="text-sm text-[var(--color-on-surface-variant)]">
-                  {tCommon('labels.quantityTimes', { qty: item.quantity })}
-                </p>
+          {preview.items.length === 0 ? (
+            <EmptyState title={t('empty.items')} />
+          ) : (
+            preview.items.map(item => (
+              <div key={item.id} className="flex justify-between gap-3 rounded-[var(--radius-card)] border border-[var(--color-outline-variant)] bg-[var(--color-surface)] p-3">
+                <div>
+                  <p className="font-bold">{item.itemNameSnapshot}</p>
+                  <p className="text-sm text-[var(--color-on-surface-variant)]">
+                    {tCommon('labels.quantityTimes', { qty: item.quantity })}
+                  </p>
+                </div>
+                <p className="font-bold">{formatMoney(item.lineTotal)}</p>
               </div>
-              <p className="font-semibold">{formatMoney(item.lineTotal)}</p>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </Card>
 
       <Card>
         <div className="space-y-4">
-          <p className="text-lg font-bold">{t('preview.title')}</p>
-          <p className="text-3xl font-extrabold">{formatMoney(preview.totalAmount)}</p>
-          <div className="space-y-2">
-            {(['Cash', 'Qr', 'BankTransfer'] as PaymentType[]).map(type => (
-              <Button
-                key={type}
-                className="w-full"
-                variant={paymentType === type ? 'primary' : 'secondary'}
-                onClick={() => setPaymentType(type)}
-              >
-                {t(paymentTypeKey[type])}
-              </Button>
-            ))}
+          <div>
+            <p className="text-sm font-semibold text-[var(--color-on-surface-variant)]">{t('preview.totalAmount')}</p>
+            <p className="mt-1 text-4xl font-extrabold leading-tight">{formatMoney(preview.totalAmount)}</p>
           </div>
+          <SegmentedControl
+            value={paymentType}
+            options={(['Cash', 'Qr', 'BankTransfer'] as PaymentType[]).map((type) => ({
+              value: type,
+              label: t(paymentTypeKey[type]),
+            }))}
+            onChange={setPaymentType}
+          />
           <Button className="w-full" disabled={payOrder.isPending} onClick={() => setConfirmOpen(true)}>
             {t('actions.confirmPayment')}
           </Button>
         </div>
       </Card>
 
-      <Modal open={confirmOpen}>
-        <div className="space-y-4">
-          <p className="text-lg font-bold">{t('actions.confirmPayment')}</p>
-          <p className="text-sm text-[var(--color-on-surface-variant)]">
-            {t('actions.confirmPaymentDescription', { tableName: preview.tableName })}
-          </p>
-          <div className="flex gap-2">
-            <Button variant="secondary" className="flex-1" onClick={() => setConfirmOpen(false)}>{t('common:actions.cancel')}</Button>
-            <Button className="flex-1" disabled={payOrder.isPending} onClick={() => payOrder.mutate()}>
-              {t('actions.pay', { type: t(paymentTypeKey[paymentType]) })}
-            </Button>
-          </div>
-        </div>
-      </Modal>
+      <ConfirmDialog
+        open={confirmOpen}
+        title={t('actions.confirmPayment')}
+        description={t('actions.confirmPaymentDescription', { tableName: preview.tableName })}
+        confirmLabel={t('actions.pay', { type: t(paymentTypeKey[paymentType]) })}
+        cancelLabel={t('common:actions.cancel')}
+        disabled={payOrder.isPending}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={() => payOrder.mutate()}
+      />
       {toastMessage ? <Toast message={toastMessage} variant="error" onClose={() => setToastMessage('')} /> : null}
     </div>
   )
