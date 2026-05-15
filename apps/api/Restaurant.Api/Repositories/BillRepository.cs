@@ -61,8 +61,7 @@ public sealed class BillRepository(RestaurantDbContext dbContext) : IBillReposit
     public async Task<string> NextBillNumberAsync(Guid tenantId, DateOnly date, CancellationToken cancellationToken = default)
     {
         var sequence = await dbContext.BillNumberSequences
-            .FromSqlInterpolated($"SELECT * FROM bill_number_sequences WHERE tenant_id = {tenantId} AND date = {date} FOR UPDATE")
-            .FirstOrDefaultAsync(cancellationToken);
+            .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Date == date, cancellationToken);
 
         if (sequence is null)
         {

@@ -1,41 +1,69 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAuditLogs } from '@/features/audit'
 import Button from '@/components/Button'
+import DataTable, { type DataTableColumn } from '@/components/DataTable'
 import Input from '@/components/Input'
-import Card from '@/components/Card'
+import PageHeader from '@/components/PageHeader'
+import { useAuditLogs } from '@/features/audit'
 import { useLocaleFormat } from '@/utils/format'
+import type { AuditLog } from '@/types'
 
 export default function AuditLogsPage() {
   const [action, setAction] = useState('')
+  const [entityType, setEntityType] = useState('')
   const { formatDateTime } = useLocaleFormat()
-  const { data } = useAuditLogs({ action: action || undefined, page: 1, pageSize: 50 })
+  const { data, isLoading } = useAuditLogs({
+    action: action.trim() || undefined,
+    entityType: entityType.trim() || undefined,
+    page: 1,
+    pageSize: 50,
+  })
   const logs = data?.items ?? []
-  const { t } = useTranslation('audit')
+  const { t } = useTranslation(['audit', 'common'])
+
+  const columns: Array<DataTableColumn<AuditLog>> = [
+    { key: 'action', header: t('audit:log.action'), render: (log) => <span className="font-bold">{log.action}</span> },
+    {
+      key: 'entity',
+      header: t('audit:log.entity'),
+      render: (log) => (
+        <div>
+          <p className="font-semibold">{log.entityType}</p>
+          <p className="max-w-[220px] truncate text-xs text-[var(--color-on-surface-variant)]">{log.entityId}</p>
+        </div>
+      ),
+    },
+    { key: 'user', header: t('audit:log.user'), render: (log) => log.userName || t('audit:log.systemUser') },
+    { key: 'reason', header: t('audit:log.reason'), render: (log) => log.reason || '-' },
+    { key: 'time', header: t('audit:log.createdAt'), render: (log) => formatDateTime(log.createdAt) },
+  ]
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-bold">{t('title')}</h2>
-      <div className="flex items-end gap-2">
-        <Input label={t('log.action')} value={action} onChange={(e) => setAction(e.target.value)} placeholder={t('placeholder.actionFilter')} />
-        <Button variant="secondary" onClick={() => setAction('')}>{t('actions.clearFilter')}</Button>
+    <div className="app-page space-y-4">
+      <PageHeader
+        title={t('audit:title')}
+        subtitle={t('audit:subtitle')}
+        meta={<span className="rounded-full border border-[var(--color-outline-variant)] bg-[var(--color-surface-white)] px-3 py-1 text-xs font-semibold text-[var(--color-on-surface-variant)]">{data?.totalCount ?? 0}</span>}
+      />
+
+      <div className="soft-panel grid grid-cols-1 gap-3 p-3 md:grid-cols-[1fr_1fr_auto]">
+        <Input label={t('audit:log.action')} value={action} onChange={(e) => setAction(e.target.value)} placeholder={t('audit:placeholder.actionFilter')} />
+        <Input label={t('audit:log.entity')} value={entityType} onChange={(e) => setEntityType(e.target.value)} placeholder={t('audit:placeholder.entityFilter')} />
+        <div className="flex items-end">
+          <Button variant="secondary" onClick={() => { setAction(''); setEntityType('') }}>
+            {t('audit:actions.clearFilter')}
+          </Button>
+        </div>
       </div>
-      <div className="space-y-2">
-        {logs.map(log => (
-          <Card key={log.id}>
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="font-semibold">{log.action}</p>
-                <p className="text-sm text-[var(--color-on-surface-variant)]">
-                  {log.entityType} · {log.entityId} · {log.userName || t('log.systemUser')}
-                </p>
-                {log.reason ? <p className="mt-1 text-sm">{t('log.reason')}: {log.reason}</p> : null}
-              </div>
-              <p className="text-sm text-[var(--color-on-surface-variant)]">{formatDateTime(log.createdAt)}</p>
-            </div>
-          </Card>
-        ))}
-      </div>
+
+      <DataTable
+        columns={columns}
+        rows={logs}
+        getRowKey={(log) => log.id}
+        isLoading={isLoading}
+        emptyTitle={t('audit:emptyTitle')}
+        emptyDescription={t('audit:emptyDescription')}
+      />
     </div>
   )
 }

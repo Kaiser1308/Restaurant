@@ -1,104 +1,69 @@
-import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useTables } from '@/features/tables'
-import { useCategories } from '@/features/menu'
-import { tablesApi } from '@/features/tables'
-import { menuApi } from '@/features/menu'
 import Button from '@/components/Button'
-import Input from '@/components/Input'
 import Card from '@/components/Card'
+import PageHeader from '@/components/PageHeader'
+import StatCard from '@/components/StatCard'
 import StatusBadge from '@/components/StatusBadge'
+import { useTables } from '@/features/tables'
+import { useCategories, useMenuItems } from '@/features/menu'
 
 export default function OwnerDashboardPage() {
-  const queryClient = useQueryClient()
   const { data: tables = [] } = useTables()
-  const [tableName, setTableName] = useState('')
-  const [categoryName, setCategoryName] = useState('')
-  const [menuName, setMenuName] = useState('')
-  const [menuPrice, setMenuPrice] = useState('50000')
-  const [selectedImage, setSelectedImage] = useState<File | null>(null)
-  const [menuFormError, setMenuFormError] = useState('')
   const { data: categories = [] } = useCategories()
-  const { t } = useTranslation(['tables', 'menu', 'common'])
+  const { data: menuItems = [] } = useMenuItems()
+  const { t } = useTranslation(['common', 'tables', 'menu'])
 
-  function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setSelectedImage(event.target.files?.[0] ?? null)
-    setMenuFormError('')
-  }
-
-  const createTable = useMutation({
-    mutationFn: () => tablesApi.create(tableName.trim()),
-    onSuccess: () => {
-      setTableName('')
-      queryClient.invalidateQueries({ queryKey: ['tables'] })
-    },
-  })
-  const createCategory = useMutation({
-    mutationFn: () => menuApi.createCategory({ name: categoryName.trim(), sortOrder: 1 }),
-    onSuccess: () => {
-      setCategoryName('')
-      queryClient.invalidateQueries({ queryKey: ['categories'] })
-    },
-  })
-  const createMenuItem = useMutation({
-    mutationFn: async () => {
-      const savedItem = await menuApi.createMenuItem({
-        categoryId: categories[0]?.id || '',
-        name: menuName.trim(),
-        price: Number(menuPrice),
-        isAvailable: true,
-      })
-
-      if (selectedImage) {
-        await menuApi.uploadMenuItemImage(savedItem.id, selectedImage)
-      }
-
-      return savedItem
-    },
-    onSuccess: () => {
-      setMenuName('')
-      setMenuPrice('50000')
-      setSelectedImage(null)
-      setMenuFormError('')
-      queryClient.invalidateQueries({ queryKey: ['menuItems'] })
-    },
-    onError: () => {
-      setMenuFormError(t('menu:menuItem.imageUploadError'))
-    },
-  })
+  const activeTables = tables.filter((table) => table.status === 'Occupied' || table.status === 'NeedsPayment').length
+  const unavailableItems = menuItems.filter((item) => !item.isAvailable).length
 
   return (
-    <div className="space-y-4">
-      <Card>
-        <p className="mb-2 font-semibold">{t('tables:management')}</p>
-        <div className="flex gap-2">
-          <Input value={tableName} onChange={(e) => setTableName(e.target.value)} placeholder={t('tables:placeholder.tableName')} />
-          <Button onClick={() => createTable.mutate()} disabled={!tableName.trim()}>{t('common:actions.create')}</Button>
-        </div>
-        <div className="mt-3 space-y-2">
-          {tables.map(tbl => <p key={tbl.id}>{tbl.name} - <StatusBadge status={tbl.status} /></p>)}
-        </div>
-      </Card>
-      <Card>
-        <p className="mb-2 font-semibold">{t('menu:management')}</p>
-        <div className="mb-2 flex gap-2">
-          <Input value={categoryName} onChange={(e) => setCategoryName(e.target.value)} placeholder={t('menu:category.createPlaceholder')} />
-          <Button onClick={() => createCategory.mutate()} disabled={!categoryName.trim()}>{t('menu:category.create')}</Button>
-        </div>
-        <div className="flex gap-2">
-          <Input value={menuName} onChange={(e) => setMenuName(e.target.value)} placeholder={t('menu:menuItem.createPlaceholder')} />
-          <Input value={menuPrice} onChange={(e) => setMenuPrice(e.target.value)} placeholder={t('common:labels.price')} />
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            onChange={handleImageChange}
-            className="rounded-md border px-3 py-2 text-sm"
-          />
-          <Button onClick={() => createMenuItem.mutate()} disabled={!menuName.trim() || categories.length === 0}>{t('menu:menuItem.create')}</Button>
-        </div>
-        {menuFormError ? <p className="mt-2 text-sm text-red-600">{menuFormError}</p> : null}
-      </Card>
+    <div className="app-page space-y-4">
+      <PageHeader title={t('common:nav.dashboard')} subtitle={t('common:dashboard.subtitle')} />
+
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <StatCard label={t('tables:title')} value={tables.length} tone="info" />
+        <StatCard label={t('common:dashboard.activeTables')} value={activeTables} tone="warning" />
+        <StatCard label={t('menu:category.title')} value={categories.length} tone="neutral" />
+        <StatCard label={t('common:dashboard.unavailableItems')} value={unavailableItems} tone="danger" />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_0.8fr]">
+        <Card>
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <p className="text-lg font-extrabold">{t('tables:management')}</p>
+            <Link to="/owner/tables">
+              <Button variant="secondary">{t('common:actions.manage')}</Button>
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {tables.slice(0, 6).map((table) => (
+              <div key={table.id} className="rounded-[var(--radius-card)] border border-[var(--color-outline-variant)] bg-[var(--color-surface)] p-3">
+                <p className="mb-2 font-bold">{table.name}</p>
+                <StatusBadge status={table.status} />
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card>
+          <div className="space-y-3">
+            <p className="text-lg font-extrabold">{t('common:dashboard.quickActions')}</p>
+            <Link to="/owner/menu" className="block">
+              <Button className="w-full" variant="secondary">{t('menu:management')}</Button>
+            </Link>
+            <Link to="/owner/audit" className="block">
+              <Button className="w-full" variant="secondary">{t('common:nav.auditLogs')}</Button>
+            </Link>
+            <Link to="/owner/reports" className="block">
+              <Button className="w-full" variant="secondary">{t('common:nav.reports')}</Button>
+            </Link>
+            <Link to="/owner/print-jobs" className="block">
+              <Button className="w-full" variant="secondary">{t('common:nav.printJobs')}</Button>
+            </Link>
+          </div>
+        </Card>
+      </div>
     </div>
   )
 }

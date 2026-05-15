@@ -10,6 +10,10 @@ export const menuApi = {
     const response = await apiClient.post<Category>('/api/categories', payload)
     return response.data
   },
+  async updateCategory(id: string, payload: { name: string; sortOrder: number; isActive: boolean }) {
+    const response = await apiClient.patch<Category>(`/api/categories/${id}`, payload)
+    return response.data
+  },
   async getMenuItems(params?: { categoryId?: string; search?: string }) {
     const response = await apiClient.get<MenuItem[]>('/api/menu-items', { params })
     return response.data

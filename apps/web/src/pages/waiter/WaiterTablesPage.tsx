@@ -23,13 +23,26 @@ export default function WaiterTablesPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-bold">{t('title')}</h2>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+    <div className="app-page">
+      <div className="page-heading">
+        <div>
+          <h1 className="page-title">{t('title')}</h1>
+          <p className="page-subtitle">{t('waiter.subtitle')}</p>
+        </div>
+        <span className="rounded-full border border-[var(--color-outline-variant)] bg-[var(--color-surface-white)] px-3 py-1 text-xs font-semibold text-[var(--color-on-surface-variant)]">
+          {t('summary.total', { count: tables.length })}
+        </span>
+      </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {tables.map((table) => (
-          <button key={table.id} className="rounded-lg border p-4 text-left" onClick={() => openTable(table)}>
-            <p className="font-semibold">{table.name}</p>
-            <StatusBadge status={table.status} />
+          <button key={table.id} className="table-tile p-4 text-left" onClick={() => openTable(table)}>
+            <div className="flex h-full flex-col justify-between gap-4">
+              <div>
+                <p className="text-lg font-extrabold text-[var(--color-on-surface)]">{table.name}</p>
+                <p className="mt-1 text-xs font-medium text-[var(--color-on-surface-variant)]">{t('waiter.openHint')}</p>
+              </div>
+              <StatusBadge status={table.status} />
+            </div>
           </button>
         ))}
       </div>

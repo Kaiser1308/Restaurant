@@ -1,7 +1,29 @@
-export default function Card({ children, className = '' }: { children: React.ReactNode, className?: string }) {
+export default function Card({
+  children,
+  className = '',
+  variant = 'default',
+  padding = 'md',
+}: {
+  children: React.ReactNode
+  className?: string
+  variant?: 'default' | 'flat' | 'muted'
+  padding?: 'none' | 'sm' | 'md'
+}) {
+  const variants = {
+    default: 'border-[var(--color-border-subtle)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]',
+    flat: 'border-[var(--color-border-subtle)] bg-[var(--color-surface)]',
+    muted: 'border-[var(--color-border-subtle)] bg-[var(--color-surface-muted)]',
+  }
+
+  const paddings = {
+    none: 'p-0',
+    sm: 'p-4',
+    md: 'p-5',
+  }
+
   return (
     <div
-      className={`rounded-[var(--radius-card)] border border-[var(--color-outline-variant)]/70 bg-[var(--color-surface-white)] p-6 shadow-[0_16px_36px_-26px_rgba(24,29,24,0.45)] ${className}`}
+      className={`rounded-[var(--radius-card)] border ${variants[variant]} ${paddings[padding]} ${className}`}
     >
       {children}
     </div>

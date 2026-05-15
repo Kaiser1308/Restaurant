@@ -1,14 +1,21 @@
 {
   "title": "Audit Logs",
+  "subtitle": "Review sensitive actions, voids, cancellations, and print job events.",
   "log": {
     "action": "Action",
     "reason": "Reason",
-    "systemUser": "System"
+    "systemUser": "System",
+    "entity": "Entity",
+    "user": "User",
+    "createdAt": "Created"
   },
   "actions": {
     "clearFilter": "Clear Filter"
   },
   "placeholder": {
-    "actionFilter": "pay_bill, void_bill..."
-  }
+    "actionFilter": "pay_bill, void_bill...",
+    "entityFilter": "Bill, Order..."
+  },
+  "emptyTitle": "No audit logs found",
+  "emptyDescription": "Try clearing filters or checking another time range."
 }

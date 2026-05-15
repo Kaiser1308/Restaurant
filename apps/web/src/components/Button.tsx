@@ -1,5 +1,5 @@
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost'
+  variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'ghost'
   size?: 'sm' | 'md' | 'lg'
 }
 
@@ -10,19 +10,20 @@ export default function Button({
   className = '',
   ...props 
 }: ButtonProps) {
-  const baseStyles = 'inline-flex items-center justify-center font-semibold tracking-[0.01em] transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-[0.99]'
+  const baseStyles = 'inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[rgba(11,111,189,0.18)] focus:ring-offset-2 focus:ring-offset-[var(--color-surface)] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer active:scale-[0.98]'
   
   const variants = {
-    primary: 'bg-[var(--color-primary)] text-white hover:brightness-95 focus:ring-[var(--color-primary)] shadow-[0_10px_22px_-12px_rgba(255,69,0,0.75)]',
-    secondary: 'bg-[var(--color-secondary-container)] text-[var(--color-on-surface)] border border-[#ffd7b5] hover:bg-[#ffe8d0] focus:ring-[var(--color-secondary)]',
-    danger: 'bg-[var(--color-error)] text-white hover:brightness-95 focus:ring-[var(--color-error)]',
-    ghost: 'bg-transparent text-[var(--color-on-surface-variant)] hover:bg-[var(--color-surface-low)] focus:ring-[var(--color-outline)]'
+    primary: 'border border-transparent bg-[var(--color-primary)] text-white shadow-[var(--shadow-card)] hover:bg-[var(--color-primary-active)]',
+    secondary: 'border border-[var(--color-border-subtle)] bg-[var(--color-surface)] text-[var(--color-text)] hover:bg-[var(--color-surface-raised)]',
+    success: 'border border-transparent bg-[var(--color-success)] text-white shadow-[var(--shadow-card)] hover:brightness-95',
+    danger: 'border border-transparent bg-[var(--color-danger)] text-white hover:brightness-95',
+    ghost: 'border border-transparent bg-transparent text-[var(--color-text-muted)] hover:bg-[var(--color-surface-muted)] hover:text-[var(--color-text)]'
   }
   
   const sizes = {
-    sm: 'h-11 px-3 text-sm rounded-[var(--radius-button)]',
-    md: 'h-11 px-4 text-sm rounded-[var(--radius-button)]',
-    lg: 'h-12 px-6 text-base rounded-[var(--radius-button)]'
+    sm: 'h-9 px-3 text-sm rounded-[var(--radius-button)]',
+    md: 'h-10 px-4 text-sm rounded-[var(--radius-button)]',
+    lg: 'h-11 px-5 text-base rounded-[var(--radius-button)]'
   }
 
   return (

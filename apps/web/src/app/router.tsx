@@ -16,6 +16,9 @@ import BillDetailPage from '@/pages/shared/BillDetailPage'
 import OwnerDashboardPage from '@/pages/owner/OwnerDashboardPage'
 import KitchenPage from '@/pages/owner/KitchenPage'
 import AuditLogsPage from '@/pages/owner/AuditLogsPage'
+import TablesManagementPage from '@/pages/owner/TablesManagementPage'
+import MenuManagementPage from '@/pages/owner/MenuManagementPage'
+import PrintJobsPage from '@/pages/owner/PrintJobsPage'
 
 export function AppRouter() {
   return (
@@ -77,8 +80,9 @@ export function AppRouter() {
                   <Route path="bills" element={<BillsListPage basePath="/owner" />} />
                   <Route path="bills/:billId" element={<BillDetailPage canVoid />} />
                   <Route path="audit" element={<AuditLogsPage />} />
-                  <Route path="tables" element={<ComingSoonPage navKey="nav.tables" />} />
-                  <Route path="menu" element={<ComingSoonPage navKey="nav.menu" />} />
+                  <Route path="tables" element={<TablesManagementPage />} />
+                  <Route path="menu" element={<MenuManagementPage />} />
+                  <Route path="print-jobs" element={<PrintJobsPage />} />
                   <Route path="staff" element={<ComingSoonPage navKey="nav.staff" />} />
                   <Route path="reports" element={<ReportsPage />} />
                 </Routes>

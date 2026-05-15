@@ -1,14 +1,21 @@
 {
-  "title": "Audit logs",
+  "title": "Nhật ký kiểm tra",
+  "subtitle": "Xem lại thao tác nhạy cảm, void bill, hủy món và sự kiện in.",
   "log": {
     "action": "Hành động",
     "reason": "Lý do",
-    "systemUser": "Hệ thống"
+    "systemUser": "Hệ thống",
+    "entity": "Đối tượng",
+    "user": "Người dùng",
+    "createdAt": "Thời gian"
   },
   "actions": {
     "clearFilter": "Xóa lọc"
   },
   "placeholder": {
-    "actionFilter": "pay_bill, void_bill..."
-  }
+    "actionFilter": "pay_bill, void_bill...",
+    "entityFilter": "Bill, Order..."
+  },
+  "emptyTitle": "Không tìm thấy nhật ký",
+  "emptyDescription": "Thử xóa bộ lọc hoặc kiểm tra khoảng thời gian khác."
 }

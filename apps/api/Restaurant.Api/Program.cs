@@ -209,3 +209,5 @@ static JwtOptions ResolveJwtOptions(IConfiguration configuration, IHostEnvironme
 
     return options;
 }
+
+public partial class Program { }

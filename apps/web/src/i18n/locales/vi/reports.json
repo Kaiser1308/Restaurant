@@ -1,5 +1,6 @@
 {
   "title": "Báo cáo",
+  "subtitle": "Doanh thu ngày, số bill đã thanh toán, bill void và tổng tiền void.",
   "label": "Báo cáo",
   "quick": "Báo cáo nhanh",
   "filter": {
@@ -8,6 +9,12 @@
   },
   "actions": {
     "export": "Xuất báo cáo"
+  },
+  "metrics": {
+    "totalRevenue": "Tổng doanh thu",
+    "paidBillCount": "Bill đã thanh toán",
+    "voidedBillCount": "Bill đã void",
+    "voidedAmount": "Tổng tiền void"
   },
   "placeholder": {
     "noData": "Không có dữ liệu"
