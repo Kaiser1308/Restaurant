@@ -102,3 +102,30 @@ export interface PagedResponse<T> {
   pageSize: number
   totalCount: number
 }
+
+export interface DailyRevenue {
+  date: string
+  totalRevenue: number
+  paidBillCount: number
+  voidedBillCount: number
+  voidedAmount: number
+}
+
+export type PrinterType = 'Kitchen' | 'Cashier' | 'KitchenCancel'
+export type PrintJobStatus = 'Pending' | 'Printing' | 'Printed' | 'Failed'
+
+export interface PrintJob {
+  id: string
+  tenantId: string
+  entityType: string
+  entityId: string
+  printerType: PrinterType | string
+  printKey: string
+  status: PrintJobStatus | string
+  contentJson: string
+  errorMessage?: string
+  retryCount: number
+  printedAt?: string
+  createdAt: string
+  updatedAt: string
+}

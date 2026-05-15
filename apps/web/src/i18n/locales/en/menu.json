@@ -1,14 +1,33 @@
 {
   "management": "Menu Management",
+  "managementPage": {
+    "subtitle": "Manage categories, items, availability, and menu item images."
+  },
   "category": {
+    "title": "Category",
     "create": "Create Category",
-    "createPlaceholder": "Category name"
+    "createPlaceholder": "Category name",
+    "sortOrder": "Sort order",
+    "emptyTitle": "No categories yet"
   },
   "menuItem": {
+    "title": "Menu Item",
     "create": "Create Item",
     "createPlaceholder": "Item name",
     "noImage": "No image",
+    "image": "Image",
+    "noDescription": "No description",
+    "availability": "Availability",
+    "markAvailable": "Mark available",
+    "markUnavailable": "Mark unavailable",
     "imageUploadError": "Image must be JPG, PNG, or WebP and 2 MB or smaller.",
-    "deleteImage": "Delete image"
+    "deleteImage": "Delete image",
+    "emptyTitle": "No menu items yet"
+  },
+  "errors": {
+    "createCategoryFailed": "Failed to create category. Please try again.",
+    "createMenuItemFailed": "Failed to create menu item. Please try again.",
+    "updateAvailabilityFailed": "Failed to update availability. Please try again.",
+    "deleteImageFailed": "Failed to delete image. Please try again."
   }
 }

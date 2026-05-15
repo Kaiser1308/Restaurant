@@ -8,5 +8,8 @@ public interface ITenantContext
     Guid? TenantId { get; }
     UserRole? Role { get; }
     bool IsAuthenticated { get; }
+    Guid RequireTenantId();
+    Guid RequireUserId();
+    UserRole RequireRole();
     void Set(Guid? userId, Guid? tenantId, UserRole? role, bool isAuthenticated);
 }

@@ -22,4 +22,5 @@ public sealed class Tenant
     public ICollection<VoidLog> VoidLogs { get; set; } = new List<VoidLog>();
     public ICollection<BillNumberSequence> BillNumberSequences { get; set; } = new List<BillNumberSequence>();
     public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
+    public ICollection<PrintJob> PrintJobs { get; set; } = new List<PrintJob>();
 }

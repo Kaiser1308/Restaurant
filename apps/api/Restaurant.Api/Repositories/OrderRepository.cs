@@ -20,7 +20,7 @@ public sealed class OrderRepository(RestaurantDbContext dbContext) : IOrderRepos
             .FirstOrDefaultAsync(x => x.TableId == tableId && (x.Status == OrderStatus.Pending || x.Status == OrderStatus.SentToKitchen), cancellationToken);
 
     public Task<Order?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-        => dbContext.Orders.Include(x => x.Items).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        => dbContext.Orders.Include(x => x.Table).Include(x => x.Items).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public Task<OrderItem?> GetItemByIdAsync(Guid itemId, CancellationToken cancellationToken = default)
         => dbContext.OrderItems
@@ -35,6 +35,9 @@ public sealed class OrderRepository(RestaurantDbContext dbContext) : IOrderRepos
 
     public Task AddAuditLogAsync(AuditLog log, CancellationToken cancellationToken = default)
         => dbContext.AuditLogs.AddAsync(log, cancellationToken).AsTask();
+
+    public Task AddPrintJobAsync(PrintJob printJob, CancellationToken cancellationToken = default)
+        => dbContext.PrintJobs.AddAsync(printJob, cancellationToken).AsTask();
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)
         => dbContext.SaveChangesAsync(cancellationToken);

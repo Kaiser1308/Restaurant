@@ -1,10 +1,34 @@
 {
   "title": "Tables",
   "management": "Table Management",
+  "waiter": {
+    "subtitle": "Choose a table to create a new order or continue the active order.",
+    "openHint": "Tap to open order"
+  },
+  "cashier": {
+    "subtitle": "Choose a table with an active order to create a bill and take payment.",
+    "openHint": "Pay when an active order exists",
+    "emptyTitle": "No tables found"
+  },
+  "summary": {
+    "total": "{{count}} tables",
+    "actionable": "{{count}} need action"
+  },
+  "managementPage": {
+    "subtitle": "Create tables and control service status for the dining room.",
+    "columns": {
+      "name": "Table",
+      "status": "Status"
+    },
+    "emptyTitle": "No tables yet",
+    "emptyDescription": "Create the first table to start taking orders."
+  },
   "placeholder": {
     "tableName": "Table name"
   },
   "errors": {
-    "noActiveOrder": "No active order for this table."
+    "noActiveOrder": "No active order for this table.",
+    "createTableFailed": "Failed to create table. Please try again.",
+    "updateTableFailed": "Failed to update table. Please try again."
   }
 }

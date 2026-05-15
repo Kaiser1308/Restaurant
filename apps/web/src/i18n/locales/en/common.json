@@ -9,7 +9,9 @@
     "clear": "Clear",
     "confirm": "Confirm",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "manage": "Manage",
+    "refresh": "Refresh"
   },
   "labels": {
     "username": "Username",
@@ -22,7 +24,8 @@
     "total": "Total",
     "subtotal": "Subtotal",
     "reason": "Reason",
-    "quantityTimes": "×{{qty}}"
+    "quantityTimes": "x{{qty}}",
+    "status": "Status"
   },
   "status": {
     "available": "Available",
@@ -36,7 +39,8 @@
     "pending": "Pending",
     "sentToKitchen": "Sent to Kitchen",
     "paid": "Paid",
-    "voided": "Voided"
+    "voided": "Voided",
+    "failed": "Failed"
   },
   "nav": {
     "tables": "Tables",
@@ -50,10 +54,42 @@
     "menu": "Menu",
     "auditLogs": "Audit Logs",
     "staff": "Staff",
-    "reports": "Reports"
+    "reports": "Reports",
+    "printJobs": "Print Jobs"
+  },
+  "dashboard": {
+    "subtitle": "Operational overview for tables, menu, audit, reports, and print health.",
+    "activeTables": "Active Tables",
+    "unavailableItems": "Unavailable Items",
+    "quickActions": "Quick Actions"
+  },
+  "printJobs": {
+    "title": "Print Jobs",
+    "subtitle": "Monitor pending kitchen and cashier print jobs. This uses the print agent key.",
+    "agentKey": "Print agent key",
+    "agentKeyPlaceholder": "Enter agent key",
+    "printerType": "Printer type",
+    "allPrinters": "All printers",
+    "kitchen": "Kitchen",
+    "cashier": "Cashier",
+    "kitchenCancel": "Kitchen cancel",
+    "missingKeyTitle": "Print agent key required",
+    "missingKeyDescription": "Enter the local print agent key to read pending print jobs.",
+    "emptyTitle": "No pending print jobs",
+    "emptyDescription": "Kitchen and cashier queues are clear.",
+    "columns": {
+      "printer": "Printer",
+      "status": "Status",
+      "entity": "Entity",
+      "retry": "Retries",
+      "createdAt": "Created",
+      "error": "Error"
+    }
   },
   "kitchen": {
-    "title": "Kitchen Display"
+    "title": "Kitchen Display",
+    "emptyTitle": "No active kitchen orders",
+    "emptyDescription": "When waiters send orders to the kitchen, they will appear here."
   },
   "brand": "Restaurant POS",
   "comingSoon": "This section is not implemented yet. Use the sidebar to continue.",

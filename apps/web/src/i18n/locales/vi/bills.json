@@ -25,7 +25,8 @@
     "voided": "Đã void"
   },
   "list": {
-    "all": "Tất cả"
+    "all": "Tất cả",
+    "empty": "Không tìm thấy hóa đơn nào."
   },
   "filter": {
     "date": "Ngày"
@@ -33,6 +34,9 @@
   "loading": {
     "preview": "Đang tải hóa đơn...",
     "detail": "Đang tải hóa đơn..."
+  },
+  "empty": {
+    "items": "Chưa có món nào trong đơn hàng"
   },
   "errors": {
     "paymentFailed": "Thanh toán thất bại. Vui lòng kiểm tra lại đơn hàng.",

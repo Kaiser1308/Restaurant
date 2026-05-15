@@ -1,5 +1,6 @@
 {
   "title": "Reports",
+  "subtitle": "Daily revenue, paid bills, voided bills, and voided amount.",
   "label": "Reports",
   "quick": "Quick Reports",
   "filter": {
@@ -8,6 +9,12 @@
   },
   "actions": {
     "export": "Export Report"
+  },
+  "metrics": {
+    "totalRevenue": "Total Revenue",
+    "paidBillCount": "Paid Bills",
+    "voidedBillCount": "Voided Bills",
+    "voidedAmount": "Voided Amount"
   },
   "placeholder": {
     "noData": "No data"

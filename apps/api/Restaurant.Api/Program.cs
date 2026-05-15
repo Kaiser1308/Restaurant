@@ -15,6 +15,7 @@ using Microsoft.Extensions.Options;
 using Minio;
 using Restaurant.Api.Infrastructure.Storage;
 using Restaurant.Api.Middleware;
+using Restaurant.Api.DTOs.PrintJobs;
 using Restaurant.Api.Repositories;
 using Restaurant.Api.Services;
 
@@ -129,6 +130,9 @@ builder.Services.AddSingleton<IMinioClient>(serviceProvider =>
     return client.Build();
 });
 builder.Services.AddSingleton<IObjectStorageService, MinioObjectStorageService>();
+builder.Services.Configure<PrintAgentOptions>(builder.Configuration.GetSection("PrintAgent"));
+builder.Services.AddScoped<IPrintJobRepository, PrintJobRepository>();
+builder.Services.AddScoped<IPrintJobService, PrintJobService>();
 
 var app = builder.Build();
 
@@ -136,8 +140,18 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<RestaurantDbContext>();
     var seedService = scope.ServiceProvider.GetRequiredService<SeedService>();
-    await dbContext.Database.MigrateAsync();
-    await seedService.SeedAsync();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    try
+    {
+        await dbContext.Database.MigrateAsync();
+        await seedService.SeedAsync();
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Database migration or seeding failed");
+        throw;
+    }
 }
 
 if (app.Environment.IsDevelopment())
@@ -195,3 +209,5 @@ static JwtOptions ResolveJwtOptions(IConfiguration configuration, IHostEnvironme
 
     return options;
 }
+
+public partial class Program { }

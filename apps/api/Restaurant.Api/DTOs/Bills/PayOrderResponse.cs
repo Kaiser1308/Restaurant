@@ -7,4 +7,5 @@ public sealed record PayOrderResponse(
     string Status,
     string PaymentType,
     decimal TotalAmount,
-    DateTimeOffset PaidAt);
+    DateTimeOffset PaidAt,
+    Guid PrintJobId);

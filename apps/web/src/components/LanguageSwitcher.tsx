@@ -33,9 +33,9 @@ export default function LanguageSwitcher() {
         value={currentLang}
         onChange={handleChange}
         aria-label={t('accessibility.changeLanguage')}
-        className="rounded-lg border border-[var(--color-outline-variant)] bg-[var(--color-surface-white)] px-3 py-1.5 text-sm font-semibold text-[var(--color-on-surface)] focus:ring-2 focus:ring-[var(--color-primary)]"
+        className="h-9 rounded-[var(--radius-button)] border border-[var(--color-outline-variant)] bg-[var(--color-surface-white)] px-3 text-sm font-semibold text-[var(--color-on-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--color-info)]/20"
       >
-        {SUPPORTED_LANGUAGES.map(lang => (
+        {SUPPORTED_LANGUAGES.map((lang) => (
           <option key={lang} value={lang}>
             {LANGUAGE_OPTIONS[lang]}
           </option>

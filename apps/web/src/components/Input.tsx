@@ -7,21 +7,22 @@ export default function Input({ label, error, className = '', ...props }: InputP
   return (
     <div className="flex w-full flex-col gap-1.5">
       {label && (
-        <label className="text-sm font-semibold text-[var(--color-on-surface)]">
+        <label className="text-sm font-semibold text-[var(--color-text)]">
           {label}
         </label>
       )}
       <input
         className={`
-          h-11 w-full rounded-[var(--radius-button)] border bg-[var(--color-surface-white)] px-4 text-sm text-[var(--color-on-surface)]
-          border-[var(--color-outline-variant)] placeholder:text-[var(--color-on-surface-variant)]/65
-          focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/25 focus:border-[var(--color-primary)] transition-all
-          ${error ? 'border-[var(--color-error)] focus:border-[var(--color-error)] focus:ring-[var(--color-error)]/25' : ''}
+          h-10 w-full rounded-[var(--radius-button)] border bg-[var(--color-surface)] px-3 text-sm text-[var(--color-text)]
+          border-[var(--color-border-subtle)] placeholder:text-[var(--color-text-muted)]
+          focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[rgba(11,111,189,0.18)] transition-all
+          disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:text-[var(--color-text-muted)]
+          ${error ? 'border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:ring-[var(--color-danger)]/25' : ''}
           ${className}
         `}
         {...props}
       />
-      {error && <span className="text-xs font-medium text-[var(--color-error)]">{error}</span>}
+      {error && <span className="text-xs font-medium text-[var(--color-danger)]">{error}</span>}
     </div>
   )
 }

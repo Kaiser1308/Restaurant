@@ -1,10 +1,34 @@
 {
   "title": "Bàn",
   "management": "Quản lý bàn",
+  "waiter": {
+    "subtitle": "Chọn bàn để tạo order mới hoặc tiếp tục order đang mở.",
+    "openHint": "Chạm để mở order"
+  },
+  "cashier": {
+    "subtitle": "Chọn bàn đang có order để tạo bill và thanh toán.",
+    "openHint": "Thanh toán khi có order đang mở",
+    "emptyTitle": "Chưa có bàn nào"
+  },
+  "summary": {
+    "total": "{{count}} bàn",
+    "actionable": "{{count}} cần xử lý"
+  },
+  "managementPage": {
+    "subtitle": "Tạo bàn và điều chỉnh trạng thái phục vụ trong phòng ăn.",
+    "columns": {
+      "name": "Bàn",
+      "status": "Trạng thái"
+    },
+    "emptyTitle": "Chưa có bàn",
+    "emptyDescription": "Tạo bàn đầu tiên để bắt đầu nhận order."
+  },
   "placeholder": {
     "tableName": "Tên bàn"
   },
   "errors": {
-    "noActiveOrder": "Bàn này không có đơn hàng đang hoạt động."
+    "noActiveOrder": "Bàn này không có đơn hàng đang hoạt động.",
+    "createTableFailed": "Không thể tạo bàn. Vui lòng thử lại.",
+    "updateTableFailed": "Không thể cập nhật bàn. Vui lòng thử lại."
   }
 }

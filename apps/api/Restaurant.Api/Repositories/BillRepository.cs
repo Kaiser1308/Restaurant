@@ -61,8 +61,7 @@ public sealed class BillRepository(RestaurantDbContext dbContext) : IBillReposit
     public async Task<string> NextBillNumberAsync(Guid tenantId, DateOnly date, CancellationToken cancellationToken = default)
     {
         var sequence = await dbContext.BillNumberSequences
-            .FromSqlInterpolated($"SELECT * FROM bill_number_sequences WHERE tenant_id = {tenantId} AND date = {date} FOR UPDATE")
-            .FirstOrDefaultAsync(cancellationToken);
+            .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Date == date, cancellationToken);
 
         if (sequence is null)
         {
@@ -88,6 +87,9 @@ public sealed class BillRepository(RestaurantDbContext dbContext) : IBillReposit
 
     public Task AddVoidLogAsync(VoidLog voidLog, CancellationToken cancellationToken = default)
         => dbContext.VoidLogs.AddAsync(voidLog, cancellationToken).AsTask();
+
+    public Task AddPrintJobAsync(PrintJob printJob, CancellationToken cancellationToken = default)
+        => dbContext.PrintJobs.AddAsync(printJob, cancellationToken).AsTask();
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)
         => dbContext.SaveChangesAsync(cancellationToken);

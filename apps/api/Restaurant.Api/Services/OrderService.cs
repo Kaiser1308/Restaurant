@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Restaurant.Api.Common.Exceptions;
 using Restaurant.Api.Domain.Entities;
 using Restaurant.Api.Domain.Enums;
@@ -26,9 +27,9 @@ public sealed class OrderService(
         var order = new Order
         {
             Id = Guid.NewGuid(),
-            TenantId = tenantContext.TenantId ?? Guid.Empty,
+            TenantId = tenantContext.RequireTenantId(),
             TableId = table.Id,
-            CreatedByUserId = tenantContext.UserId ?? Guid.Empty,
+            CreatedByUserId = tenantContext.RequireUserId(),
             Status = OrderStatus.Pending,
             CreatedAt = now,
             UpdatedAt = now
@@ -72,7 +73,7 @@ public sealed class OrderService(
         var item = new OrderItem
         {
             Id = Guid.NewGuid(),
-            TenantId = tenantContext.TenantId ?? Guid.Empty,
+            TenantId = tenantContext.RequireTenantId(),
             OrderId = order.Id,
             MenuItemId = menuItem.Id,
             ItemNameSnapshot = menuItem.Name,
@@ -119,7 +120,7 @@ public sealed class OrderService(
 
         item.Status = OrderItemStatus.Cancelled;
         item.CancelReason = request.Reason.Trim();
-        item.CancelledByUserId = tenantContext.UserId;
+        item.CancelledByUserId = tenantContext.RequireUserId();
         item.CancelledAt = DateTimeOffset.UtcNow;
         item.UpdatedAt = DateTimeOffset.UtcNow;
         await AddAuditAsync("cancel_order_item", "order_item", item.Id, item.CancelReason, cancellationToken);
@@ -152,10 +153,39 @@ public sealed class OrderService(
             item.UpdatedAt = now;
         }
 
+        var content = new
+        {
+            TableName = order.Table.Name,
+            OrderId = order.Id,
+            SentAt = now,
+            Items = pendingItems.Select(x => new
+            {
+                x.ItemNameSnapshot,
+                x.Quantity,
+                x.UnitPrice,
+                LineTotal = x.UnitPrice * x.Quantity
+            }).ToList()
+        };
+
+        var printJob = new PrintJob
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantContext.RequireTenantId(),
+            EntityType = "order",
+            EntityId = order.Id,
+            PrinterType = PrinterType.Kitchen,
+            PrintKey = $"kitchen:{order.Id}:{now:yyyyMMddHHmmssfffffff}",
+            Status = PrintJobStatus.Pending,
+            ContentJson = JsonSerializer.Serialize(content),
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
         order.UpdatedAt = now;
+        await orderRepository.AddPrintJobAsync(printJob, cancellationToken);
         await AddAuditAsync("send_to_kitchen", "order", order.Id, null, cancellationToken);
         await orderRepository.SaveChangesAsync(cancellationToken);
-        return new SendToKitchenResponse(order.Id, order.Status.ToString());
+        return new SendToKitchenResponse(order.Id, order.Status.ToString(), printJob.Id);
     }
 
     private async Task AddAuditAsync(string action, string entityType, Guid entityId, string? reason, CancellationToken cancellationToken)
@@ -163,8 +193,8 @@ public sealed class OrderService(
         var log = new AuditLog
         {
             Id = Guid.NewGuid(),
-            TenantId = tenantContext.TenantId ?? Guid.Empty,
-            UserId = tenantContext.UserId,
+            TenantId = tenantContext.RequireTenantId(),
+            UserId = tenantContext.RequireUserId(),
             Action = action,
             EntityType = entityType,
             EntityId = entityId,

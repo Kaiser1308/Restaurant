@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Restaurant.Api.Common.Exceptions;
 using Restaurant.Api.Domain.Entities;
 using Restaurant.Api.Domain.Enums;
@@ -45,8 +46,8 @@ public sealed class BillService(
             throw new BusinessException("All payable items must be sent to kitchen before payment.", 409);
         }
 
-        var tenantId = tenantContext.TenantId ?? throw new UnauthorizedException();
-        var userId = tenantContext.UserId ?? throw new UnauthorizedException();
+        var tenantId = tenantContext.RequireTenantId();
+        var userId = tenantContext.RequireUserId();
         var now = DateTimeOffset.UtcNow;
         var billNumber = await billRepository.NextBillNumberAsync(tenantId, DateOnly.FromDateTime(now.UtcDateTime), cancellationToken);
         var billItems = payableItems
@@ -86,12 +87,41 @@ public sealed class BillService(
         order.Table.Status = TableStatus.Available;
         order.Table.UpdatedAt = now;
 
+        var printJob = new PrintJob
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            EntityType = "bill",
+            EntityId = bill.Id,
+            PrinterType = PrinterType.Cashier,
+            Status = PrintJobStatus.Pending,
+            PrintKey = $"cashier:{bill.Id}",
+            ContentJson = JsonSerializer.Serialize(new
+            {
+                billNumber = bill.BillNumber,
+                tableName = order.Table.Name,
+                paymentType = bill.PaymentType.ToString(),
+                totalAmount = bill.TotalAmount,
+                paidAt = bill.PaidAt,
+                items = billItems.Select(x => new
+                {
+                    itemName = x.ItemNameSnapshot,
+                    quantity = x.Quantity,
+                    unitPrice = x.UnitPriceSnapshot,
+                    lineTotal = x.LineTotal
+                })
+            }),
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
         await billRepository.AddBillAsync(bill, cancellationToken);
+        await billRepository.AddPrintJobAsync(printJob, cancellationToken);
         await AddAuditAsync("pay_bill", "bill", bill.Id, null, cancellationToken);
         await billRepository.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        return new PayOrderResponse(bill.Id, bill.BillNumber, bill.OrderId, bill.Status.ToString(), bill.PaymentType.ToString(), bill.TotalAmount, bill.PaidAt);
+        return new PayOrderResponse(bill.Id, bill.BillNumber, bill.OrderId, bill.Status.ToString(), bill.PaymentType.ToString(), bill.TotalAmount, bill.PaidAt, printJob.Id);
     }
 
     public async Task<BillResponse> GetAsync(Guid id, CancellationToken cancellationToken = default)
@@ -128,7 +158,7 @@ public sealed class BillService(
 
     public async Task<BillResponse> VoidAsync(Guid id, VoidBillRequest request, CancellationToken cancellationToken = default)
     {
-        var role = tenantContext.Role ?? throw new UnauthorizedException();
+        var role = tenantContext.RequireRole();
         if (!permissionService.CanVoidBill(role))
         {
             throw new ForbiddenException("Only owner can void bills.");
@@ -142,7 +172,7 @@ public sealed class BillService(
         }
 
         var now = DateTimeOffset.UtcNow;
-        var userId = tenantContext.UserId ?? throw new UnauthorizedException();
+        var userId = tenantContext.RequireUserId();
         var reason = request.Reason.Trim();
 
         bill.Status = BillStatus.Voided;
@@ -173,8 +203,8 @@ public sealed class BillService(
         var log = new AuditLog
         {
             Id = Guid.NewGuid(),
-            TenantId = tenantContext.TenantId ?? Guid.Empty,
-            UserId = tenantContext.UserId,
+            TenantId = tenantContext.RequireTenantId(),
+            UserId = tenantContext.RequireUserId(),
             Action = action,
             EntityType = entityType,
             EntityId = entityId,

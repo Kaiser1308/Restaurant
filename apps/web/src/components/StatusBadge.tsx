@@ -14,23 +14,32 @@ const statusKeyMap: Record<string, string> = {
   paid: 'common:status.paid',
   voided: 'common:status.voided',
   cancelled: 'common:status.cancelled',
+  printing: 'common:status.processing',
+  printed: 'common:status.completed',
+  failed: 'common:status.failed',
 }
 
 export default function StatusBadge({ status }: { status: string }) {
   const { t } = useTranslation()
   const normalized = status.trim().toLowerCase()
   const palette: Record<string, string> = {
-    available: 'bg-[#eef3ee] text-[#2b372b] border-[#d8dbd8]',
-    occupied: 'bg-[#fff1de] text-[#70470d] border-[#ffd8a8]',
-    reserved: 'bg-[#fff8d8] text-[#705f03] border-[#f1de8a]',
-    attention: 'bg-[#ffe9e9] text-[#8f1111] border-[#f3b5b5]',
-    paid: 'bg-[#e9f6ea] text-[#1f6b22] border-[#b9e0bc]',
-    voided: 'bg-[#ffe9e9] text-[#8f1111] border-[#f3b5b5]',
-    pending: 'bg-[#eef3ee] text-[#2b372b] border-[#d8dbd8]',
-    senttokitchen: 'bg-[#e8f2ff] text-[#0c4f8f] border-[#b8d7ff]'
+    available: 'bg-[var(--color-surface-muted)] text-[var(--color-text)] border-[var(--color-border-subtle)]',
+    occupied: 'bg-[var(--color-warning-soft)] text-[var(--color-warning)] border-[var(--color-warning)]/30',
+    needspayment: 'bg-[var(--color-info-soft)] text-[var(--color-info)] border-[var(--color-info)]/30',
+    reserved: 'bg-[var(--color-warning-soft)] text-[var(--color-warning)] border-[var(--color-warning)]/30',
+    closed: 'bg-[var(--color-surface-muted)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]',
+    attention: 'bg-[var(--color-danger-soft)] text-[var(--color-danger)] border-[var(--color-danger)]/30',
+    paid: 'bg-[var(--color-success-soft)] text-[var(--color-success)] border-[var(--color-success)]/30',
+    voided: 'bg-[var(--color-danger-soft)] text-[var(--color-danger)] border-[var(--color-danger)]/30',
+    cancelled: 'bg-[var(--color-danger-soft)] text-[var(--color-danger)] border-[var(--color-danger)]/30',
+    pending: 'bg-[var(--color-surface-muted)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]',
+    senttokitchen: 'bg-[var(--color-info-soft)] text-[var(--color-info)] border-[var(--color-info)]/30',
+    printing: 'bg-[var(--color-info-soft)] text-[var(--color-info)] border-[var(--color-info)]/30',
+    printed: 'bg-[var(--color-success-soft)] text-[var(--color-success)] border-[var(--color-success)]/30',
+    failed: 'bg-[var(--color-danger-soft)] text-[var(--color-danger)] border-[var(--color-danger)]/30',
   }
 
-  const style = palette[normalized] ?? 'bg-[var(--color-surface-low)] text-[var(--color-on-surface-variant)] border-[var(--color-outline-variant)]'
+  const style = palette[normalized] ?? 'bg-[var(--color-surface-muted)] text-[var(--color-text-muted)] border-[var(--color-border-subtle)]'
   const translationKey = statusKeyMap[normalized]
 
   return (

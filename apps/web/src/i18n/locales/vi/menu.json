@@ -1,14 +1,33 @@
 {
   "management": "Quản lý thực đơn",
+  "managementPage": {
+    "subtitle": "Quản lý danh mục, món, trạng thái bán và hình ảnh món."
+  },
   "category": {
+    "title": "Danh mục",
     "create": "Tạo danh mục",
-    "createPlaceholder": "Tên danh mục"
+    "createPlaceholder": "Tên danh mục",
+    "sortOrder": "Thứ tự",
+    "emptyTitle": "Chưa có danh mục"
   },
   "menuItem": {
+    "title": "Món",
     "create": "Tạo món",
     "createPlaceholder": "Tên món",
-    "noImage": "Chưa có ảnh",
-    "imageUploadError": "Ảnh phải là JPG, PNG hoặc WebP và tối đa 2 MB.",
-    "deleteImage": "Xóa ảnh"
+    "noImage": "Không có ảnh",
+    "image": "Hình ảnh",
+    "noDescription": "Chưa có mô tả",
+    "availability": "Trạng thái bán",
+    "markAvailable": "Bật bán",
+    "markUnavailable": "Tắt bán",
+    "imageUploadError": "Ảnh phải là JPG, PNG hoặc WebP và không quá 2 MB.",
+    "deleteImage": "Xóa ảnh",
+    "emptyTitle": "Chưa có món"
+  },
+  "errors": {
+    "createCategoryFailed": "Không thể tạo danh mục. Vui lòng thử lại.",
+    "createMenuItemFailed": "Không thể tạo món. Vui lòng thử lại.",
+    "updateAvailabilityFailed": "Không thể cập nhật trạng thái. Vui lòng thử lại.",
+    "deleteImageFailed": "Không thể xoá ảnh. Vui lòng thử lại."
   }
 }

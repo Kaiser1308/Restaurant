@@ -27,13 +27,7 @@ Relevant existing files:
 - `apps/web/src/features/menu/api/menuApi.ts`: frontend menu API calls.
 - `apps/web/src/types/pos.ts`: shared frontend POS types.
 
-Before editing any symbol, run GitNexus impact analysis as required by `AGENTS.md`. For this plan, the minimum targets are:
-
-```bash
-gitnexus_impact({target: "MenuItem", direction: "upstream"})
-gitnexus_impact({target: "MenuItemService", direction: "upstream"})
-gitnexus_impact({target: "MenuItemsController", direction: "upstream"})
-```
+Before editing existing symbols, review the listed backend and frontend touchpoints and keep changes within this plan's file scope. Use compile, lint, and architecture verification as the safety gates.
 
 ---
 
@@ -956,18 +950,18 @@ eslint exits 0
 ✓ built
 ```
 
-- [ ] **Step 6: Run GitNexus detect changes**
+- [ ] **Step 6: Run architecture verification**
 
 Run:
 
-```bash
-gitnexus_detect_changes({scope: "staged"})
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/verify-architecture.ps1
 ```
 
 Expected:
 
 ```text
-risk_level is low or medium, with no unexplained affected flows
+Architecture verification exits 0 with no violations.
 ```
 
 - [ ] **Step 7: Push branch**
